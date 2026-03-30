@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Share2, FileText, BarChart3, CheckCircle } from 'lucide-react';
 import { MarketComparison } from './MarketComparison';
-import { useDocumentTextStore } from '../store/documentTextStore';
-import type { MarketAnalysisResult } from '../utils/marketAnalysis';
-import { useAppliedRecommendationsStore } from '../store/appliedRecommendationsStore';
+import { useDocumentTextStore } from '../../store/documentTextStore';
+import type { MarketAnalysisResult } from '../../utils/marketAnalysis';
+import { useAppliedRecommendationsStore } from '../../store/appliedRecommendationsStore';
 
 interface ActionButtonsProps {
   onNewAnalysis: () => void;
@@ -18,7 +18,7 @@ interface ActionButtonsProps {
   fileName?: string;
 }
 
-export const ActionButtons: React.FC<ActionButtonsProps> = ({ 
+export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onNewAnalysis,
   onShareReport,
   onMarketAnalysis,
@@ -30,7 +30,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   fileName
 }) => {
   const [showComparison, setShowComparison] = useState(false);
-  
+
   // RESTAURATION: Récupérer le nombre de patches appliqués depuis le store
   const patches = useDocumentTextStore(state => state.patches);
   const activePatchCount = patches.filter(p => p.active).length;
@@ -59,20 +59,19 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
               <FileText className="w-4 h-4 mr-2" />
               Nouvelle analyse
             </button>
-            
+
             <button
               onClick={handleMarketAnalysisClick}
               disabled={!isProcessed || isMarketAnalysisLoading}
-              className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors ${
-                showComparison 
-                  ? 'bg-green-600 text-white hover:bg-green-700' 
+              className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors ${showComparison
+                  ? 'bg-green-600 text-white hover:bg-green-700'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } ${(!isProcessed || isMarketAnalysisLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                } ${(!isProcessed || isMarketAnalysisLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               {isMarketAnalysisLoading ? 'Analyse en cours...' : (showComparison ? 'Masquer comparatif' : 'Analyse comparative')}
             </button>
-            
+
             <button
               onClick={onShareReport}
               className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
@@ -85,11 +84,10 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
               <button
                 onClick={() => generateWordDocument(originalContent, fileName)}
                 disabled={!isProcessed || !hasAnyAppliedRecommendations}
-                className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors ${
-                  (!isProcessed || !hasAnyAppliedRecommendations)
+                className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors ${(!isProcessed || !hasAnyAppliedRecommendations)
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                }`}
+                  }`}
                 title={!hasAnyAppliedRecommendations ? 'Aucune recommandation appliquée à exporter' : 'Exporter le document modifié en .docx'}
               >
                 <FileText className="w-4 h-4 mr-2" />
@@ -106,7 +104,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
                 <span className="text-sm font-medium text-gray-700">
                   {activePatchCount} recommandation{activePatchCount > 1 ? 's' : ''} appliquée{activePatchCount > 1 ? 's' : ''}
                 </span>
-                
+
 
                 {/* RESTAURATION: Boutons pour basculer entre original et modifié */}
                 {/* A SUPPRIMER <div className="inline-flex rounded-full border border-gray-300 overflow-hidden ml-2">
@@ -134,7 +132,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           </div>
         </div>
       </div>
-      
+
       {/* Panneau d'analyse comparative */}
       {showComparison && (
         <div className="bg-white border-b border-gray-200 shadow-lg">
@@ -142,7 +140,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             {analysisResult ? (
               <MarketComparison
                 analysisResult={analysisResult}
-                onQuestionClick={onQuestionClick || (() => {})}
+                onQuestionClick={onQuestionClick || (() => { })}
                 isLoading={isMarketAnalysisLoading}
               />
             ) : (

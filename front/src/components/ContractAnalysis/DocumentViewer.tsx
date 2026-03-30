@@ -1,21 +1,21 @@
 import { useRef, forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ClauseRisk } from '../types';
+import { ClauseRisk } from '../../types';
 import { ClausesSidebar } from './ClausesSidebar';
-import { isFeatureEnabled } from '../config/features';
-import { useDocumentTextStore } from '../store/documentTextStore';
+import { isFeatureEnabled } from '../../config/features';
+import { useDocumentTextStore } from '../../store/documentTextStore';
 import { ContractAnalysisSummary } from './ContractAnalysisSummary';
-import { AnalysisContext } from '../types/contextualAnalysis';
-import { findBestClauseSpan } from '../utils/textPatchLocator';
+import { AnalysisContext } from '../../types/contextualAnalysis';
+import { findBestClauseSpan } from '../../utils/textPatchLocator';
 //import { useClauseHighlight } from '../hooks/useClauseHighlight'; Momentanément desactivé
-import { formatContent } from '../utils/documentViewerTools/formatContent';
-import { modernHighlighter } from '../utils/modernHighlighter';
+import { formatContent } from '../../utils/documentViewerTools/formatContent';
+import { modernHighlighter } from '../../utils/modernHighlighter';
 
 
 import ReactQuill from 'react-quill';
-//@quillsql/react
 import 'react-quill/dist/quill.snow.css'; // thème
-import { escapeHtml } from '../utils/documentViewerTools/escapeHtml';
+
+//import { escapeHtml } from '../utils/documentViewerTools/escapeHtml';
 
 interface DocumentViewerProps {
     content: string;
@@ -161,14 +161,18 @@ export const DocumentViewer = forwardRef<DocumentViewerRef, DocumentViewerProps>
 
 
 
-    const htmlQuill = (str: string) => {
-        const arrayStr: string[] = []
-        str.split("\n\n")
-            .map(l => arrayStr.push(`<p><span onClick="console.log("click")" style="font-size:22px>${escapeHtml(l)}</span></p>`))
 
-        return arrayStr.join('')
-    }
 
+    /*     
+        //Librairie Quill pour l'edit de texte
+        const htmlQuill = (str: string) => {
+            const arrayStr: string[] = []
+            str.split("\n\n")
+                .map(l => arrayStr.push(`<p><span onClick="console.log("click")" style="font-size:22px>${escapeHtml(l)}</span></p>`))
+    
+            return arrayStr.join('')
+        }
+    */
 
 
 

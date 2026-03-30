@@ -1,7 +1,7 @@
 import React from 'react';
-import { X, Download, Mail, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
+import { X, AlertTriangle, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { ClauseRisk } from '../types';
+import { ClauseRisk } from '../front/src/types';
 
 interface ReportModalProps {
   isOpen: boolean;

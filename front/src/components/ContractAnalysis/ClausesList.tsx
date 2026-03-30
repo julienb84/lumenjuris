@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle, Shield, TrendingUp, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { ClauseRisk } from '../types';
+import { ClauseRisk } from '../../types';
 
 interface ClausesListProps {
   clauses: ClauseRisk[];

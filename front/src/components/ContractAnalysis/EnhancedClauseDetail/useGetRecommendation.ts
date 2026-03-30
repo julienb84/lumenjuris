@@ -1,16 +1,16 @@
 import { SetStateAction, useEffect, Dispatch } from "react";
-import { perfMark, perfMeasure } from "../EnhancedClauseDetail";
-import { ClauseRisk } from "../../types";
-import { Recommendation } from "../../types";
-import { AnalysisContext } from "../../types/contextualAnalysis";
-import { getRecommendedClauses } from "../../utils/getRecommendedClauses";
+import { perfMark, perfMeasure } from "./EnhancedClauseDetail";
+import { ClauseRisk } from "../../../types";
+import { Recommendation } from "../../../types";
+import { AnalysisContext } from "../../../types/contextualAnalysis";
+import { getRecommendedClauses } from "../../../utils/getRecommendedClauses";
 
 export const useGetRecommendation = (
-    clause:ClauseRisk,
-    setAlternatives:Dispatch<SetStateAction<Recommendation[]| null>>,
-    altCache:Record<string, Recommendation[]>,
+    clause: ClauseRisk,
+    setAlternatives: Dispatch<SetStateAction<Recommendation[] | null>>,
+    altCache: Record<string, Recommendation[]>,
     altCacheTime: Record<string, number>,
-    context:AnalysisContext | undefined
+    context: AnalysisContext | undefined
 ) => {
     useEffect(() => {
         if (!clause) return

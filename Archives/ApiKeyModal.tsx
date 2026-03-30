@@ -1,4 +1,4 @@
-import React from 'react';
+/* import React from 'react';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -18,3 +18,4 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
     </div>
   );
 };
+ */

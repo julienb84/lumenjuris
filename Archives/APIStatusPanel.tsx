@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Wifi, WifiOff, RefreshCw, CheckCircle, AlertTriangle, XCircle, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { testPDFExtractionAPI, quickConnectivityTest, APITestResult, displayTestReport } from '../utils/apiTester';
+import { testPDFExtractionAPI, quickConnectivityTest, APITestResult, displayTestReport } from '../front/src/utils/apiTester';
+
+
+
 
 const RENDER_API_URL = 'https://pdf-extractor-n9q0.onrender.com';
 const LOCAL_API_URL = 'http://localhost:5678';
+
+
 
 export const APIStatusPanel: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<'checking' | 'available' | 'unavailable'>('checking');
@@ -54,16 +59,16 @@ export const APIStatusPanel: React.FC = () => {
   const runFullTest = async () => {
     setIsRunningTest(true);
     setApiStatus('checking');
-    
+
     try {
       const result = await testPDFExtractionAPI();
       setTestResult(result);
       setApiStatus(result.isAvailable ? 'available' : 'unavailable');
       setLastTestTime(new Date());
-      
+
       // Affiche le rapport dans la console
       displayTestReport(result);
-      
+
     } catch (error) {
       console.error('Erreur lors du test complet:', error);
       setApiStatus('unavailable');
@@ -162,32 +167,30 @@ export const APIStatusPanel: React.FC = () => {
         {/* Status détaillé des APIs */}
         <div className="mt-4 space-y-2">
           <h4 className="text-sm font-medium text-gray-900">Status détaillé des APIs</h4>
-          
+
           <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                renderStatus === 'available' ? 'bg-green-500' :
-                renderStatus === 'unavailable' ? 'bg-red-500' : 'bg-yellow-500'
-              }`}></div>
+              <div className={`w-2 h-2 rounded-full ${renderStatus === 'available' ? 'bg-green-500' :
+                  renderStatus === 'unavailable' ? 'bg-red-500' : 'bg-yellow-500'
+                }`}></div>
               <span className="text-sm text-gray-700">Render (Cloud)</span>
             </div>
             <span className="text-xs text-gray-500">
               {renderStatus === 'available' ? '✅ Actif' :
-               renderStatus === 'unavailable' ? '❌ Inactif' : '⏳ Test...'}
+                renderStatus === 'unavailable' ? '❌ Inactif' : '⏳ Test...'}
             </span>
           </div>
-          
+
           <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${
-                localStatus === 'available' ? 'bg-green-500' :
-                localStatus === 'unavailable' ? 'bg-red-500' : 'bg-yellow-500'
-              }`}></div>
+              <div className={`w-2 h-2 rounded-full ${localStatus === 'available' ? 'bg-green-500' :
+                  localStatus === 'unavailable' ? 'bg-red-500' : 'bg-yellow-500'
+                }`}></div>
               <span className="text-sm text-gray-700">Local (Port 5678)</span>
             </div>
             <span className="text-xs text-gray-500">
               {localStatus === 'available' ? '✅ Actif' :
-               localStatus === 'unavailable' ? '❌ Inactif' : '⏳ Test...'}
+                localStatus === 'unavailable' ? '❌ Inactif' : '⏳ Test...'}
             </span>
           </div>
         </div>
@@ -201,7 +204,7 @@ export const APIStatusPanel: React.FC = () => {
           className="space-y-3 mb-4"
         >
           <h4 className="text-sm font-medium text-gray-900">Résultats du Test Complet</h4>
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="flex items-center space-x-2 mb-1">
@@ -210,7 +213,7 @@ export const APIStatusPanel: React.FC = () => {
               </div>
               <p className="text-lg font-bold text-blue-600">{testResult.responseTime}ms</p>
             </div>
-            
+
             {testResult.extractionQuality && (
               <div className="bg-gray-50 p-3 rounded-lg">
                 <div className="flex items-center space-x-2 mb-1">
@@ -226,7 +229,7 @@ export const APIStatusPanel: React.FC = () => {
               </div>
             )}
           </div>
-          
+
           {testResult.textLength !== undefined && (
             <div className="bg-gray-50 p-3 rounded-lg">
               <p className="text-sm text-gray-700">
@@ -234,7 +237,7 @@ export const APIStatusPanel: React.FC = () => {
               </p>
             </div>
           )}
-          
+
           {testResult.error && (
             <div className="bg-red-50 p-3 rounded-lg border border-red-200">
               <p className="text-sm text-red-800">
@@ -264,14 +267,14 @@ export const APIStatusPanel: React.FC = () => {
             </>
           )}
         </button>
-        
+
         <button
           onClick={checkIndividualAPIs}
           className="w-full py-2 px-4 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
         >
           Actualiser le statut des APIs
         </button>
-        
+
         {apiStatus === 'unavailable' && (
           <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
             <h4 className="text-sm font-medium text-yellow-900 mb-1">Dépannage</h4>

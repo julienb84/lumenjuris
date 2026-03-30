@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction, useEffect } from "react";
-import { ClauseRisk } from "../../types";
-import { JurisprudenceCase } from "../../types";
-import { getAutomaticDecisions } from "../../utils/getAutomaticDecisions";
-import { getKeywordSearchLinks } from "../../utils/getKeywordSearchLinks";
-import { perfMark, perfMeasure } from "../EnhancedClauseDetail";
+import { ClauseRisk } from "../../../types";
+import { JurisprudenceCase } from "../../../types";
+import { getAutomaticDecisions } from "../../../utils/getAutomaticDecisions";
+import { getKeywordSearchLinks } from "../../../utils/getKeywordSearchLinks";
+import { perfMark, perfMeasure } from "./EnhancedClauseDetail";
 
 
 

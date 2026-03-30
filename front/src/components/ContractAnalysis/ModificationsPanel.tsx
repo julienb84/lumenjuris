@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAppliedRecommendationsStore } from '../store/appliedRecommendationsStore';
-import { useDocumentTextStore } from '../store/documentTextStore';
-import { ClauseRisk } from '../types';
+import { useAppliedRecommendationsStore } from '../../store/appliedRecommendationsStore';
+import { useDocumentTextStore } from '../../store/documentTextStore';
+import { ClauseRisk } from '../../types';
 import { X } from 'lucide-react';
 
 interface ModificationsPanelProps {

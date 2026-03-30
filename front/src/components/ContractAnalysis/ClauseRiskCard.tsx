@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
-import { ClauseRisk } from "../types"
+import { ClauseRisk } from "../../types"
 import { ClauseTooltip } from "./ClauseTooltip"
-import { TextPatch } from "../store/documentTextStore"
+import { TextPatch } from "../../store/documentTextStore"
 
 
 interface PropsClauseCard {

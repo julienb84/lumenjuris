@@ -119,7 +119,7 @@ export const AIInsightsPanel: React.FC = () => {
                   {insight.impact === 'high' ? 'Élevé' : insight.impact === 'medium' ? 'Moyen' : 'Faible'}
                 </span>
                 {insight.actionable && (
-                  <Lightbulb className="w-4 h-4 text-yellow-500" title="Action recommandée" />
+                  <Lightbulb className="w-4 h-4 text-yellow-500" />
                 )}
               </div>
             </div>

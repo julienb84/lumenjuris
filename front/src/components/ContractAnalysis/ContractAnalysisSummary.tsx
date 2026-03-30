@@ -1,5 +1,5 @@
 
-import { AnalysisContext } from "../types/contextualAnalysis";
+import { AnalysisContext } from "../../types/contextualAnalysis";
 
 interface ContractAnalysisSummaryProps {
     contractSummary?: AnalysisContext

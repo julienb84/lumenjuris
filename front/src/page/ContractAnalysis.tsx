@@ -1,17 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Header } from '../components/Header';
-import { UploadZone } from '../components/UploadZone';
-import { DocumentViewer, DocumentViewerRef } from '../components/DocumentViewer';
+import { Header } from '../components/ContractAnalysis/Header';
+import { UploadZone } from '../components/ContractAnalysis/UploadZone';
+import { DocumentViewer, DocumentViewerRef } from '../components/ContractAnalysis/DocumentViewer';
 
 // ===> ACTION 3 : CORRIGER L'IMPORT ICI
-import { EnhancedClauseDetail, clearEnhancedClauseCaches } from '../components/EnhancedClauseDetail';
-
-import { ActionButtons } from '../components/ActionButtons';
-import { ContextualAnalysisForm } from '../components/ContextualAnalysisForm';
-import { PersonalizedDashboard } from '../components/PersonalizedDashboard';
+import { EnhancedClauseDetail, clearEnhancedClauseCaches } from '../components/ContractAnalysis/EnhancedClauseDetail/EnhancedClauseDetail';
+import { ActionButtons } from '../components/ContractAnalysis/ActionButtons';
+import { ContextualAnalysisForm } from '../components/ContractAnalysis/ContextualAnalysisForm';
 import React, { Suspense } from 'react';
-const MarketComparison = React.lazy(() => import('../components/MarketComparison').then(m => ({ default: m.MarketComparison })));
+const MarketComparison = React.lazy(() => import('../components/ContractAnalysis/MarketComparison').then(m => ({ default: m.MarketComparison })));
 import { useContractAnalysis } from '../hooks/useContractAnalysis';
 import { useRiskStats } from '../hooks/useRiskStats';
 import { useShareUrl } from '../hooks/useShareUrl';
@@ -29,7 +27,7 @@ export default function ContractAnalysis() {
   // États locaux
   const [selectedClause, setSelectedClause] = useState<string | null>(null);
   const [showAnalysisForm, setShowAnalysisForm] = useState(false);
-  const [contextualAnalysis, setContextualAnalysis] = useState<any>(null);
+  //const [contextualAnalysis, setContextualAnalysis] = useState<any>(null);
   const [reviewedClauses, setReviewedClauses] = useState<Set<string>>(new Set());
   const [showMarketAnalysis, setShowMarketAnalysis] = useState(false);
 
@@ -94,6 +92,7 @@ export default function ContractAnalysis() {
   // Gestionnaires d'événements locaux (non extraits dans les hooks)
   const handleClauseClick = (clauseId: string) => {
     console.log('🚀 handleClauseClick appelé avec clauseId:', clauseId);
+
 
     if (documentViewerRef.current) {
       console.log('✅ Appel de scrollToClause...');
@@ -160,7 +159,6 @@ export default function ContractAnalysis() {
     resetAnalysis();
     setSelectedClause(null);
     setShowAnalysisForm(false);
-    setContextualAnalysis(null);
     setReviewedClauses(new Set());
 
     console.log('✅ Nouvelle analyse initialisée');
@@ -175,7 +173,6 @@ export default function ContractAnalysis() {
       clearEnhancedClauseCaches();
       await handleFileUpload(file);
       setShowAnalysisForm(true);
-      setContextualAnalysis(null);
       setSelectedClause(null);
     } catch (error) {
       console.error('Erreur upload:', error);
@@ -189,7 +186,6 @@ export default function ContractAnalysis() {
       clearEnhancedClauseCaches();
       await handleTextSubmit(text, fileName);
       setShowAnalysisForm(true);
-      setContextualAnalysis(null);
       setSelectedClause(null);
     } catch (error) {
       console.error('Erreur soumission texte:', error);
@@ -202,7 +198,6 @@ export default function ContractAnalysis() {
       clearEnhancedClauseCaches();
       await handleStandardAnalysis();
       setShowAnalysisForm(false);
-      setContextualAnalysis(null);
     } catch (error) {
       console.error('Erreur analyse standard:', error);
     }
@@ -237,7 +232,7 @@ export default function ContractAnalysis() {
 
 
 
-  
+
   const handleMarketAnalysisClick = async () => {
     try {
       // Si déjà calculée, on n'appelle pas à nouveau l'analyse
@@ -274,10 +269,8 @@ export default function ContractAnalysis() {
     resetAnalysis();
     setSelectedClause(null);
     setReviewedClauses(new Set());
-    setContextualAnalysis(null);
     setShowAnalysisForm(false);
   };
-
 
 
   const clauseData = contract?.clauses.find((c) => c.id === selectedClause);
@@ -396,16 +389,6 @@ export default function ContractAnalysis() {
                 />
               </div>
             </div>
-
-            {/* Dashboard personnalisé si analyse contextuelle */}
-            {contextualAnalysis && (
-              <div className="mb-6">
-                <PersonalizedDashboard
-                  analysis={contextualAnalysis}
-                  context={currentAnalysisContext || undefined}
-                />
-              </div>
-            )}
 
             {/* Boutons d'action - Centrés */}
             <div className="flex justify-center">

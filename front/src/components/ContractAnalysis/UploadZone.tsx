@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextInputZone } from './TextInputZone';
-import { CheckCircle, Clock, FileText, Brain, BarChart3, FileCheck } from 'lucide-react';
+import { FileText, Brain, BarChart3, FileCheck } from 'lucide-react';
 
 interface UploadZoneProps {
   onFileSelect: (file: File) => void;
@@ -49,6 +49,8 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
     return steps.findIndex(step => step.id === processingPhase);
   };
 
+
+
   const currentStepIndex = getCurrentStepIndex();
   const progress = isProcessing ? ((currentStepIndex + 1) / steps.length) * 100 : 0;
 
@@ -65,6 +67,13 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
           <p className="text-sm text-gray-600 max-w-md">
             Extraction et préparation de votre document pour l'analyse
           </p>
+          <progress
+            value={progress}
+            max="100"
+            className="w-full h-3 appearance-none overflow-hidden rounded-full [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-value]:bg-gradient-to-r [&::-webkit-progress-value]:from-blue-500 [&::-webkit-progress-value]:to-indigo-500 [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:bg-gradient-to-r [&::-moz-progress-bar]:from-blue-500 [&::-moz-progress-bar]:to-indigo-500"
+          >
+
+          </progress>
         </div>
       </div>
     );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContextualAnalysisResult } from '../types/contextualAnalysis';
+import { ContextualAnalysisResult } from '../front/src/types/contextualAnalysis';
 import { AlertTriangle, CheckCircle, TrendingUp, DollarSign, Clock, Shield } from 'lucide-react';
 
 interface PersonalizedDashboardProps {
@@ -124,9 +124,9 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({ an
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-semibold">{clause.type}</h4>
                 <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(clause.priority)}`}>
-                  {clause.priority === 'critical' ? 'CRITIQUE' : 
-                   clause.priority === 'high' ? 'ÉLEVÉ' : 
-                   clause.priority === 'medium' ? 'MOYEN' : 'FAIBLE'}
+                  {clause.priority === 'critical' ? 'CRITIQUE' :
+                    clause.priority === 'high' ? 'ÉLEVÉ' :
+                      clause.priority === 'medium' ? 'MOYEN' : 'FAIBLE'}
                 </span>
               </div>
               <p className="text-sm mb-3 font-mono bg-white bg-opacity-50 p-2 rounded">

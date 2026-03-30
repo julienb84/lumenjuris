@@ -1,6 +1,6 @@
 import React from 'react';
-import { AlertTriangle, Shield, TrendingUp, FileText, AlertCircle } from 'lucide-react';
-import { RiskStats } from '../types';
+import { AlertTriangle, Shield, AlertCircle } from 'lucide-react';
+import { RiskStats } from '../front/src/types';
 
 interface RiskDashboardProps {
   /** Statistiques globales remontées par l'analyse IA */
@@ -10,7 +10,7 @@ interface RiskDashboardProps {
   /** Callback pour faire défiler vers la section des clauses */
   onScrollToClauses?: () => void;
   /** Callback pour faire défiler vers un niveau de risque spécifique */
-  
+
   /**
    * Afficher (ou pas) la ventilation par catégorie.
    * Si tu le laisses à `false`, seuls les compteurs globaux s'affichent
@@ -58,7 +58,7 @@ export const RiskDashboard: React.FC<RiskDashboardProps> = ({
           onClick={undefined}
           clickable={false}
         />
-        
+
         {/* Risque Moyen (score 3-4) */}
         <Card
           color="orange"
@@ -68,7 +68,7 @@ export const RiskDashboard: React.FC<RiskDashboardProps> = ({
           onClick={undefined}
           clickable={false}
         />
-        
+
         {/* Risque Modéré (score < 3) */}
         <Card
           color="green"

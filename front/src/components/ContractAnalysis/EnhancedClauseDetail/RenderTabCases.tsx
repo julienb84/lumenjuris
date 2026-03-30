@@ -1,5 +1,5 @@
 import { Scale } from "lucide-react";
-import { JurisprudenceCase } from "../../types"
+import { JurisprudenceCase } from "../../../types"
 
 
 

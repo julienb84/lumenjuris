@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react"
-import { ClauseRisk } from "../types";
-import { ClauseRecommendation } from "../types";
-import { useAppliedRecommendationsStore } from "../store/appliedRecommendationsStore";
-import { useDocumentTextStore } from "../store/documentTextStore";
-import { findBestClauseSpan } from "../utils/textPatchLocator";
+import { ClauseRisk } from "../../types";
+import { ClauseRecommendation } from "../../types";
+import { useAppliedRecommendationsStore } from "../../store/appliedRecommendationsStore";
+import { useDocumentTextStore } from "../../store/documentTextStore";
+import { findBestClauseSpan } from "../../utils/textPatchLocator";
 
 interface PropsInlineClauseEditor {
     clause: ClauseRisk;
@@ -145,7 +145,7 @@ export const InlineClauseEditor: React.FC<PropsInlineClauseEditor> = ({
 
                 {/* Pour le futur fonctionnalitée à mettre en place -> retour du texte à son état d'origine. 
                 On peut aller chercher le fonctionnement de "retirer" dans enhancedClause on voudrai le même comportement ici. */}
-                {false  && ( //if le text est modifié et est actif
+                {false && ( //if le text est modifié et est actif
                     <button
                         className="px-3 py-1.5 text-sm bg-red-500  hover:bg-red-700 
                      text-white rounded-md transition-colors font-medium"

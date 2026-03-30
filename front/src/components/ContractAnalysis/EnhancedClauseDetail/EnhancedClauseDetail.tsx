@@ -3,22 +3,22 @@
  */
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { ClauseRisk, JurisprudenceCase, Recommendation } from '../types';
-import { AnalysisContext } from '../types/contextualAnalysis';
-import { useAIStore } from '../store/aiStore';
-import { useDocumentTextStore } from '../store/documentTextStore';
-import { useChatStore } from '../store/chatStore';
-const ChatUI = React.lazy(() => import('./ChatUI'));
+import { ClauseRisk, JurisprudenceCase, Recommendation } from '../../../types';
+import { AnalysisContext } from '../../../types/contextualAnalysis';
+import { useAIStore } from '../../../store/aiStore';
+import { useDocumentTextStore } from '../../../store/documentTextStore';
+import { useChatStore } from '../../../store/chatStore';
+const ChatUI = React.lazy(() => import('../../ContractAnalysis/EnhancedClauseDetail/ChatUI'));
 
 
 
 //refactor en cour
-import { useRun } from './EnhancedClauseDetail/useRun';
-import { useGetRecommendation } from './EnhancedClauseDetail/useGetRecommendation';
-import { renderTabs } from './EnhancedClauseDetail/renderTabs';
-import { renderHeader } from './EnhancedClauseDetail/renderHeader';
-import { RenderTabCases } from './EnhancedClauseDetail/renderTabCases';
-import { RenderTabOverview } from './EnhancedClauseDetail/RenderTabOverview';
+import { useRun } from './useRun';
+import { useGetRecommendation } from './useGetRecommendation';
+import { renderTabs } from './renderTabs';
+import { renderHeader } from './renderHeader';
+import { RenderTabCases } from './RenderTabCases';
+import { RenderTabOverview } from './RenderTabOverview';
 //fin de refactor
 
 

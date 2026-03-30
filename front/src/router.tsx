@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import ContractAnalysis from "./page/ContractAnalysis"
 import { Dashboard } from "./page/Dashboard";
 import { Inscription } from "./page/Inscription";
+
+
 function Teste(){
     return (<div>Test</div>)
 }

@@ -1,6 +1,6 @@
 
 import { Dispatch, SetStateAction } from "react";
-import { Tab } from "../EnhancedClauseDetail";
+import { Tab } from "./EnhancedClauseDetail";
 import { FileText, Gavel, HelpCircle } from "lucide-react";
 
 

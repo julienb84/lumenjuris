@@ -1,5 +1,5 @@
 import { escapeHtml } from "./escapeHtml";
-import { InlineClauseEditor } from "../../components/InlineClauseEditor";
+import { InlineClauseEditor } from "../../components/ContractAnalysis/InlineClauseEditor";
 import { TextPatch } from "../../store/documentTextStore";
 import { ClauseRisk } from "../../types";
 
@@ -93,7 +93,7 @@ export const formatContent = ({
         const isPatched = patches.some(p => p.clauseId == clauseId && p.active == true)
         let currentPatchText;
         if (isPatched) {
-            currentPatchText = patches.find(p => p.clauseId === clauseId  && p.active === true)?.newSlice
+            currentPatchText = patches.find(p => p.clauseId === clauseId && p.active === true)?.newSlice
         }
 
 

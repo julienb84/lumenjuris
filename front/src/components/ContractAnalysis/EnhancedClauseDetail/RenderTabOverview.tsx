@@ -1,11 +1,11 @@
 import { SetStateAction, Dispatch } from "react";
 import { Loader } from 'lucide-react';
-import { findBestClauseSpan } from "../../utils/textPatchLocator";
-import { ClauseAI, ClauseRecommendation, ClauseRisk } from "../../types";
-import { Recommendation } from "../../types";
-import { copyToClipboard } from "../EnhancedClauseDetail";
-import { useDocumentTextStore } from "../../store/documentTextStore";
-import { useAppliedRecommendationsStore } from "../../store/appliedRecommendationsStore";
+import { findBestClauseSpan } from "../../../utils/textPatchLocator";
+import { ClauseAI, ClauseRecommendation, ClauseRisk } from "../../../types";
+import { Recommendation } from "../../../types";
+import { copyToClipboard } from "./EnhancedClauseDetail";
+import { useDocumentTextStore } from "../../../store/documentTextStore";
+import { useAppliedRecommendationsStore } from "../../../store/appliedRecommendationsStore";
 
 
 
@@ -60,7 +60,7 @@ export const RenderTabOverview: React.FC<PropsRenderTabOverview> = ({
             removePatch(oldKey)
         }
 
-        
+
         //Retire le texte modifié du render 
         console.log("clef de la recommendation à retirer:", recommendationKey)
         removePatch(recommendationKey);
@@ -84,7 +84,7 @@ export const RenderTabOverview: React.FC<PropsRenderTabOverview> = ({
         if (alreadyExist) {
             //detruire l'ancienne recommandation et ajouter la nouvelle
             console.warn('[reco] Recommandation déjà appliquée, ignorée', { clauseId });
-            return; 
+            return;
         }
         applyRecommendation(clause.id, recommendationIndex, clauseRecommendation, clause);
         let anchor = findBestClauseSpan(originalTextGlobal, clause);
@@ -93,7 +93,7 @@ export const RenderTabOverview: React.FC<PropsRenderTabOverview> = ({
             return console.log("impossible de retrouver les index de positionnement, retour de la fonction d'application de recommendation forcé")
         }
 
-        
+
         applyPatch({
             clauseId: clause.id,
             recommendationKey,
@@ -213,7 +213,7 @@ export const RenderTabOverview: React.FC<PropsRenderTabOverview> = ({
                                     <div className="mb-2 flex items-start justify-end gap-2 text-sm">
                                         <button onClick={() => copyToClipboard(alternative.clauseText)} className="rounded-full px-3 py-1 font-semibold text-slate-700 border border-slate-400 bg-slate-100 hover:bg-slate-200" title="Copier cette recommandation">Copier</button>
                                         {currentRecommendation ? (
-                                            <button onClick={()=>handleRemove(recommendationKey)}
+                                            <button onClick={() => handleRemove(recommendationKey)}
                                                 className="rounded-full px-3 py-1 font-semibold text-slate-700 border border-slate-400 bg-slate-100 hover:bg-slate-200">
                                                 Retirer
                                             </button>

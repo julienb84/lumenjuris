@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useChatStore } from '../store/chatStore';
+import { useChatStore } from '../../../store/chatStore';
 import { Send, MessageSquare, AlertTriangle, HelpCircle } from 'lucide-react';
 
 /**
@@ -82,13 +82,12 @@ export const ChatUI: React.FC = () => {
               </div>
             )}
             <div
-              className={`max-w-[80%] p-3 rounded-lg text-sm leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-slate-800 text-white rounded-br-none'
-                  : msg.role === 'assistant'
+              className={`max-w-[80%] p-3 rounded-lg text-sm leading-relaxed ${msg.role === 'user'
+                ? 'bg-slate-800 text-white rounded-br-none'
+                : msg.role === 'assistant'
                   ? 'bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-sm'
                   : 'bg-red-100 text-red-800 border border-red-200 rounded-bl-none'
-              }`}
+                }`}
             >
               {msg.content}
             </div>

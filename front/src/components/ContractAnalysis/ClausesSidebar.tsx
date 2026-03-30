@@ -1,7 +1,7 @@
 import React from 'react';
-import { ClauseRisk } from '../types';
+import { ClauseRisk } from '../../types';
 import { ClauseRiskCard } from './ClauseRiskCard';
-import { TextPatch } from '../store/documentTextStore';
+import { TextPatch } from '../../store/documentTextStore';
 
 interface ClausesSidebarProps {
   clauses: ClauseRisk[];
@@ -10,6 +10,8 @@ interface ClausesSidebarProps {
   activeClauseId?: string | null;
   recommandationApplied?: TextPatch[];
 }
+
+
 
 export const ClausesSidebar: React.FC<ClausesSidebarProps> = ({
   clauses,

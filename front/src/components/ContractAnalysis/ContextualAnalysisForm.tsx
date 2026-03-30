@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { AnalysisContext } from '../types/contextualAnalysis';
-import { detectContractWithAI } from '../utils/contractDetector';
+import { AnalysisContext } from '../../types/contextualAnalysis';
+import { detectContractWithAI } from '../../utils/contractDetector';
 
 interface ContextualAnalysisFormProps {
   onSubmit: (context: AnalysisContext) => void;

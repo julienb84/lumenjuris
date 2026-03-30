@@ -1,14 +1,14 @@
-import { ClauseRisk } from "../../types";
+import { ClauseRisk } from "../../../types";
 import { Copy, X } from "lucide-react"
-import { copyToClipboard } from "../EnhancedClauseDetail";
+import { copyToClipboard } from "./EnhancedClauseDetail";
 
 
 
 
 export function renderHeader(
     longText: string,
-    clause:ClauseRisk,
-    onClose:() => void,
+    clause: ClauseRisk,
+    onClose: () => void,
 ) {
     if (!clause) return null;
     return (
