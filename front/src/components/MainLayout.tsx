@@ -97,7 +97,7 @@ export function MainLayout() {
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-green-500" />
             </button>
             <div className="flex items-center gap-2 pl-3 border-l border-gray-200">
-              <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium">
+              <div className="h-8 w-8 rounded-full bg-[#354F99] flex items-center justify-center text-white text-xs font-medium">
                 ML
               </div>
               <div className="hidden md:flex items-center gap-1 cursor-pointer">

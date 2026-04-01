@@ -18,9 +18,9 @@ const kpiCards = [
 ];
 
 const veilleItems = [
-  { tag: "Temps de travail", tagClass: "bg-green-100 text-green-700",  title: "Nouvelle obligation d'information des salariés en CDD",         date: "28 fév. 2026" },
-  { tag: "Rupture",          tagClass: "bg-yellow-100 text-yellow-700", title: "Réforme des indemnités prud'homales : barème actualisé",        date: "25 fév. 2026" },
-  { tag: "Discipline",       tagClass: "bg-red-100 text-red-600",       title: "Procédure disciplinaire : nouveaux délais de prescription",     date: "22 fév. 2026" },
+  { tag: "Temps de travail", tagClass: "bg-green-100 text-green-700",   title: "Nouvelle obligation d'information des salariés en CDD",         date: "28 fév. 2026" },
+  { tag: "Rupture",          tagClass: "bg-orange-100 text-orange-700", title: "Réforme des indemnités prud'homales : barème actualisé",        date: "25 fév. 2026" },
+  { tag: "Discipline",       tagClass: "bg-purple-100 text-purple-700", title: "Procédure disciplinaire : nouveaux délais de prescription",     date: "22 fév. 2026" },
 ];
 
 const docTypes = [
@@ -45,7 +45,6 @@ export function Dashboard() {
   return (
     <div className="space-y-6 max-w-7xl">
 
-            {/* Title */}
             <div className="flex items-end justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Tableau de bord</h1>
@@ -57,7 +56,7 @@ export function Dashboard() {
               </div>
             </div>
 
-            {/* KPI Cards */}
+            {/* Statistiques */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {kpiCards.map((card, i) => (
                 <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col gap-3 shadow-sm">
@@ -133,7 +132,7 @@ export function Dashboard() {
                     </button>
                   ))}
                 </div>
-                <Link to="/generate" className="inline-flex items-center gap-2 text-sm font-medium text-[#354F99] hover:text-[#4A65B0] transition-colors">
+                <Link to="/generateur" className="inline-flex items-center gap-2 text-sm font-medium text-[#354F99] hover:text-[#4A65B0] transition-colors">
                   Créer un document <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -188,10 +187,10 @@ export function Dashboard() {
                   </div>
                   <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
                     <span className="text-xs font-medium text-gray-400">Estimation</span>
-                    <span className="text-lg font-bold text-green-600">6 400 €</span>
+                    <span className="text-lg font-bold text-[#354F99]">6 400 €</span>
                   </div>
                 </div>
-                <Link to="/calculate" className="inline-flex items-center gap-2 text-sm font-medium text-[#354F99] hover:text-[#4A65B0] transition-colors">
+                <Link to="/calculateur" className="inline-flex items-center gap-2 text-sm font-medium text-[#354F99] hover:text-[#4A65B0] transition-colors">
                   Calculer une indemnité <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -221,7 +220,7 @@ export function Dashboard() {
                   </div>
                 ))}
               </div>
-              <Link to="/monitor" className="inline-flex items-center gap-2 text-sm font-medium text-[#354F99] hover:text-[#4A65B0] transition-colors">
+              <Link to="/veille" className="inline-flex items-center gap-2 text-sm font-medium text-[#354F99] hover:text-[#4A65B0] transition-colors">
                 Voir toutes les actualités <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
