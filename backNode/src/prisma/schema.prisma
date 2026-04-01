@@ -11,8 +11,59 @@ datasource db {
   provider = "mysql"
 }
 
+//==== ENUM ====
+
+enum Role{
+  USER
+  ADMIN
+}
+
+enum AuthProvider{
+  GOOGLE
+}
+
+enum SubscriptionStatus{
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+}
 
 
+//==== CREATION DES MODELS ====
+
+// Utilisateurs
+model User{
+  idUser                Int     @id @default(autoincrement())
+  role                  Role    @default(USER)
+  email                 String  @unique
+  nom                   String 
+  prenom                String
+  isVerified            Boolean @default(false)
+  avatarUrl             String?
+  stripeCustomerId      String?
+
+  //relation 
+  tokens                Token[]
+  events                Event[]
+  authProviders         AuthProviderAccount[]
+  subscription          Subscription[]
+
+  enterpriseId          Int?
+  enterprise            Enterprise? @relation(fields: [enterpriseId], references: [idEnterprise])
+
+  userCredit            UserCredit?
+}
+
+
+//Entreprise
+model Enterprise{
+  idEnterprise          Int     @id @default(autoincrement())
+  siren                 String?
+  codeNaf               String?
+  name                  String
+  conventionCollective  String
+  statusJurisique       String
 
 //==== ENUM ====
 
