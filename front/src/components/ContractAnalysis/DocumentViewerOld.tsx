@@ -68,7 +68,7 @@ export const DocumentViewer = forwardRef<
 
     // Etat pour afficher l'editeur de text de clause
     const [editingClauseId, setEditingClauseId] = useState<string | null>(null);
-    // const [quillActiv, setQuillActiv] = useState<boolean>(false);
+    const [quillActiv, setQuillActiv] = useState<boolean>(false);
     // Gestion du click sur un span d'une clause détectée dans le texte
     const lastClick = useRef(0);
 
@@ -185,13 +185,13 @@ export const DocumentViewer = forwardRef<
               📄 {fileName}
             </h2>
             <div className="flex items-center gap-4 text-xs">
-              {/* <button
+              <button
                 onClick={() => setQuillActiv(!quillActiv)}
                 className="px-2 py-1 rounded-full border text-xs font-semibold bg-blue-500 text-white
                             shadow-md hover:shadow-lg transition-all duration-200"
               >
                 {!quillActiv ? "Passer en mode Edition" : "Sortir de l'édition"}
-              </button> */}
+              </button>
 
               <button
                 onClick={() => resetAll()}
@@ -215,22 +215,27 @@ export const DocumentViewer = forwardRef<
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.4 }}
               >
-                <div className="max-w-4xl mx-auto space-y-2">
-                  {formattedContent.length > 0 ? (
-                    <div>
-                      <ReactQuill
-                        theme="bubble" //sinon bubble pour avoir le text directement editable sans les tools
-                        value={displayedText}
-                        onChange={() => console.log("text changed in quill")}
-                      />
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <div className="text-6xl mb-4">📄</div>
-                      <p>Aucun contenu à afficher</p>
-                    </div>
-                  )}
-                </div>
+                {!quillActiv && (
+                  <div className="max-w-4xl mx-auto space-y-2">
+                    {formattedContent.length > 0 ? (
+                      formattedContent
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <div className="text-6xl mb-4">📄</div>
+                        <p>Aucun contenu à afficher</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {quillActiv && (
+                  <div>
+                    <ReactQuill
+                      theme="bubble" //sinon bubble pour avoir le text directement editable sans les tools
+                      value={displayedText}
+                      onChange={() => console.log("text changed in quill")}
+                    />
+                  </div>
+                )}
               </motion.div>
             </div>
           </div>
