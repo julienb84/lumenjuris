@@ -1,7 +1,7 @@
-import { Navigation } from "../components/Navigation"
-
 import { Link, useNavigate } from "react-router-dom";
+
 import { useState, useRef, useCallback } from "react";
+
 import {
   LayoutDashboard, FileText, PenTool, ShieldCheck, MessageSquare,
   Calculator, Newspaper, Settings, Lock, Scale, Bell, Search,
@@ -21,25 +21,25 @@ const navItems = [
 ];
 
 const kpiCards = [
-  { icon: FileText,     iconBg: "bg-slate-100 text-black-500", value: "48", label: "Nombre de contrats",    sub: "Total actifs",                     badge: null },
-  { icon: FileCheck,    iconBg: "bg-green-50 text-green-600", value: "32", label: "Contrats signés",        sub: null,                               badge: "+5 ce mois" },
-  { icon: Clock,        iconBg: "bg-yellow-50 text-yellow-600", value: "12", label: "Contrats en cours",   sub: "En attente de signature",          badge: null },
-  { icon: CalendarClock,iconBg: "bg-slate-100 text-black-500", value: "4",  label: "Arrivées bientôt",      sub: "Dans les 30 prochains jours",      badge: null },
-  { icon: ShieldCheck,  iconBg: "bg-slate-100 text-black-500", value: "5",  label: "Procédures en cours",   sub: "2 échéances cette semaine",        badge: null },
-  { icon: AlertTriangle,iconBg: "bg-red-50 text-red-500",     value: "3",  label: "Alertes juridiques",    sub: "2 prioritaires",                   badge: null },
+  { icon: FileText, iconBg: "bg-slate-100 text-black-500", value: "48", label: "Nombre de contrats", sub: "Total actifs", badge: null },
+  { icon: FileCheck, iconBg: "bg-green-50 text-green-600", value: "32", label: "Contrats signés", sub: null, badge: "+5 ce mois" },
+  { icon: Clock, iconBg: "bg-yellow-50 text-yellow-600", value: "12", label: "Contrats en cours", sub: "En attente de signature", badge: null },
+  { icon: CalendarClock, iconBg: "bg-slate-100 text-black-500", value: "4", label: "Arrivées bientôt", sub: "Dans les 30 prochains jours", badge: null },
+  { icon: ShieldCheck, iconBg: "bg-slate-100 text-black-500", value: "5", label: "Procédures en cours", sub: "2 échéances cette semaine", badge: null },
+  { icon: AlertTriangle, iconBg: "bg-red-50 text-red-500", value: "3", label: "Alertes juridiques", sub: "2 prioritaires", badge: null },
 ];
 
 const veilleItems = [
-  { tag: "Temps de travail", tagClass: "bg-green-100 text-green-700",  title: "Nouvelle obligation d'information des salariés en CDD",         date: "28 fév. 2026" },
-  { tag: "Rupture",          tagClass: "bg-yellow-100 text-yellow-700", title: "Réforme des indemnités prud'homales : barème actualisé",        date: "25 fév. 2026" },
-  { tag: "Discipline",       tagClass: "bg-red-100 text-red-600",       title: "Procédure disciplinaire : nouveaux délais de prescription",     date: "22 fév. 2026" },
+  { tag: "Temps de travail", tagClass: "bg-green-100 text-green-700", title: "Nouvelle obligation d'information des salariés en CDD", date: "28 fév. 2026" },
+  { tag: "Rupture", tagClass: "bg-yellow-100 text-yellow-700", title: "Réforme des indemnités prud'homales : barème actualisé", date: "25 fév. 2026" },
+  { tag: "Discipline", tagClass: "bg-red-100 text-red-600", title: "Procédure disciplinaire : nouveaux délais de prescription", date: "22 fév. 2026" },
 ];
 
 const docTypes = [
-  { icon: Briefcase,    label: "CDI",                 sub: "Contrat durée indéterminée" },
-  { icon: ClipboardList,label: "CDD",                 sub: "Contrat durée déterminée" },
-  { icon: FileText,     label: "Avenant",             sub: "Modification contractuelle" },
-  { icon: BookOpen,     label: "Lettre disciplinaire",sub: "Procédure disciplinaire" },
+  { icon: Briefcase, label: "CDI", sub: "Contrat durée indéterminée" },
+  { icon: ClipboardList, label: "CDD", sub: "Contrat durée déterminée" },
+  { icon: FileText, label: "Avenant", sub: "Modification contractuelle" },
+  { icon: BookOpen, label: "Lettre disciplinaire", sub: "Procédure disciplinaire" },
 ];
 
 export function Dashboard() {
@@ -87,11 +87,10 @@ export function Dashboard() {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors ${
-                      item.active
-                        ? "bg-white/10 text-white font-medium"
-                        : "text-gray-400 hover:bg-white/5 hover:text-white"
-                    }`}
+                    className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors ${item.active
+                      ? "bg-white/10 text-white font-medium"
+                      : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      }`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     <span>{item.label}</span>
@@ -198,11 +197,10 @@ export function Dashboard() {
                   <ShieldCheck className="h-5 w-5 text-gray-300" />
                 </div>
                 <div
-                  className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center mb-4 transition-colors cursor-pointer ${
-                    dragOver
-                      ? "border-[#354F99] bg-[#354F99]/5"
-                      : "border-gray-200 hover:border-[#354F99] hover:bg-[#354F99]/5"
-                  }`}
+                  className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center mb-4 transition-colors cursor-pointer ${dragOver
+                    ? "border-[#354F99] bg-[#354F99]/5"
+                    : "border-gray-200 hover:border-[#354F99] hover:bg-[#354F99]/5"
+                    }`}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
@@ -290,9 +288,9 @@ export function Dashboard() {
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Indemnité de licenciement</p>
                   <div className="space-y-2.5">
                     {[
-                      { label: "Ancienneté",          value: "8 ans" },
+                      { label: "Ancienneté", value: "8 ans" },
                       { label: "Salaire brut mensuel", value: "3 200 €" },
-                      { label: "Motif",                value: "Personnel" },
+                      { label: "Motif", value: "Personnel" },
                     ].map((row) => (
                       <div key={row.label} className="flex justify-between items-center">
                         <span className="text-xs text-gray-400">{row.label}</span>
