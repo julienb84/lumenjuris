@@ -16,9 +16,6 @@ const setCssClauseInlineStyle = (clauseRisk: number): string => {
   return (colorMap[clauseRisk] || "background-color:#ffedd5;") + base;
 };
 
-const startsNewArticle = (str: string) =>
-  str.startsWith("Article") || str.startsWith("ARTICLE");
-
 interface formatContentToHtmlProps {
   text: string;
   clauseRiskRange: { start: number; end: number; clauseId: string }[];
@@ -39,22 +36,15 @@ export const formatContentToHtml = ({
 
   const processTextFragment = (fragment: string) => {
     const paragraphs = fragment
-      .split("\n\n")
+      .split(/(?=(?:Article|Objet))/)
       .filter((paragraph) => paragraph.trim());
     for (const paragraph of paragraphs) {
       const trimmed = paragraph.trim();
       if (!trimmed) continue;
-      if (startsNewArticle(trimmed)) {
-        const title = escapeHtml(trimmed.replace(/^##\s*/, ""));
-        htmlParts.push(
-          `<h3 style="font-size:1.125rem;color:#111827;border-bottom:1px solid #e5e7eb;padding-bottom:0.5rem;margin-top:2rem;margin-bottom:1.5rem;">\n${title}</h3><br/>`,
-        );
-      } else {
-        const escaped = escapeHtml(trimmed).replace(/\n\n/g, "<br/>");
-        htmlParts.push(
-          `<p style="margin-bottom:1rem;line-height:1.625;color:#1f2937;">${escaped}</p><br/>`,
-        );
-      }
+      const escaped = escapeHtml(trimmed).replace(/\n\n/g, "<br/>");
+      htmlParts.push(
+        `<p style="margin-bottom:1rem;line-height:1.625;color:#1f2937;">${escaped}</p>`,
+      );
     }
   };
 
