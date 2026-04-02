@@ -1,7 +1,7 @@
 import type {
   SeveranceCalculationInput,
   SeveranceCalculationResult,
-} from './typesIndemnitees';
+} from '../../types/calculIndemnitees';
 
 const MIN_ELIGIBILITY_MONTHS = 8;
 const TEN_YEARS = 10;
