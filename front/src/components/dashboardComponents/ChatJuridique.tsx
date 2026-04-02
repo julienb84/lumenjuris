@@ -1,74 +1,214 @@
-import { useState, useRef } from "react";
-import { MessageSquare, Send, Download, Clock } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { MessageSquare, Send, Download, Clock, Plus, Trash2, Loader2 } from "lucide-react";
 
-type Message = { role: "user" | "bot"; text: string; sources?: string[] };
+type Message = { role: "user" | "bot" | "error"; text: string };
+type Conversation = { id: string; title: string; createdAt: string; messages: Message[] };
 
-const history = [
-  { id: 1, title: "Licenciement faute grave",       time: "Aujourd'hui", active: true  },
-  { id: 2, title: "Durée période d'essai cadre",    time: "Hier",        active: false },
-  { id: 3, title: "Obligation de reclassement",     time: "26 fév.",     active: false },
-  { id: 4, title: "Rupture conventionnelle col...", time: "24 fév.",     active: false },
-];
+const LS_KEY = "chatjuridique_conversations";
+
+function loadConversations(): Conversation[] {
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveConversations(convs: Conversation[]) {
+  localStorage.setItem(LS_KEY, JSON.stringify(convs));
+}
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const d = Math.floor(diff / 86_400_000);
+  if (d === 0) return "Aujourd'hui";
+  if (d === 1) return "Hier";
+  return `Il y a ${d} j`;
+}
 
 export function ChatJuridique() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>(loadConversations);
+  const [activeId, setActiveId] = useState<string | null>(() => loadConversations()[0]?.id ?? null);
   const [input, setInput] = useState("");
-  const [activeId, setActiveId] = useState(1);
+  const [isSending, setIsSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const sendMessage = (text: string) => {
-    if (!text.trim()) return;
-    setMessages((prev) => [...prev, { role: "user", text }]);
-    setInput("");
+  const activeConv = conversations.find((c) => c.id === activeId) ?? null;
+
+  useEffect(() => {
+    saveConversations(conversations);
+  }, [conversations]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, [activeConv?.messages.length]);
+
+  const createConversation = useCallback(() => {
+    const conv: Conversation = {
+      id: crypto.randomUUID(),
+      title: "Nouvelle conversation",
+      createdAt: new Date().toISOString(),
+      messages: [],
+    };
+    setConversations((prev) => [conv, ...prev]);
+    setActiveId(conv.id);
+  }, []);
+
+  const deleteConversation = useCallback((id: string) => {
+    setConversations((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      if (activeId === id) setActiveId(next[0]?.id ?? null);
+      return next;
+    });
+  }, [activeId]);
+
+  const sendMessage = useCallback(async (text: string) => {
+    if (!text.trim() || isSending) return;
+
+    let convId = activeId;
+
+    // Crée la conversation si vide
+    if (!convId) {
+      const conv: Conversation = {
+        id: crypto.randomUUID(),
+        title: text.slice(0, 40),
+        createdAt: new Date().toISOString(),
+        messages: [],
+      };
+      setConversations((prev) => [conv, ...prev]);
+      setActiveId(conv.id);
+      convId = conv.id;
+    }
+
+    const userMsg: Message = { role: "user", text };
+
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === convId
+          ? {
+              ...c,
+              title: c.messages.length === 0 ? text.slice(0, 40) : c.title,
+              messages: [...c.messages, userMsg],
+            }
+          : c
+      )
+    );
+    setInput("");
+    setIsSending(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          context: "Tu es un assistant juridique spécialisé en droit du travail français. Réponds avec précision en citant les articles du Code du travail pertinents.",
+        }),
+      });
+
+      if (!res.ok) {
+        let detail = `Erreur HTTP ${res.status}`;
+        try { detail = (await res.json()).detail ?? detail; } catch {}
+        throw new Error(detail);
+      }
+
+      const data = await res.json();
+      const botMsg: Message = { role: "bot", text: data.response };
+      setConversations((prev) =>
+        prev.map((c) => c.id === convId ? { ...c, messages: [...c.messages, botMsg] } : c)
+      );
+    } catch (err) {
+      const errMsg: Message = {
+        role: "error",
+        text: err instanceof Error ? err.message : "Une erreur est survenue.",
+      };
+      setConversations((prev) =>
+        prev.map((c) => c.id === convId ? { ...c, messages: [...c.messages, errMsg] } : c)
+      );
+    } finally {
+      setIsSending(false);
+    }
+  }, [activeId, isSending]);
 
   return (
     <div className="flex h-[calc(100vh-9rem)] gap-0 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
 
-      {/* Liste des conversations */}
+      {/* liste des conversations */}
       <aside className="w-64 shrink-0 bg-white border-r border-gray-200 flex-col hidden md:flex">
-        <div className="px-4 py-4 border-b border-gray-100">
+        <div className="px-4 py-4 border-b border-gray-100 flex items-center justify-between">
           <p className="text-sm font-semibold text-gray-900">Historique</p>
-        </div>
-        <ul className="flex-1 overflow-auto px-3 py-3 space-y-1">
-          {history.map((h) => (
-            <li key={h.id}>
-              <button
-                onClick={() => setActiveId(h.id)}
-                className={`w-full text-left px-3 py-3 rounded-xl transition-colors ${
-                  activeId === h.id ? "bg-[#354F99]/10 border border-[#354F99]/20" : "hover:bg-gray-50"
-                }`}
-              >
-                <p className={`text-sm font-medium truncate ${activeId === h.id ? "text-[#354F99]" : "text-gray-700"}`}>
-                  {h.title}
-                </p>
-                <div className="flex items-center gap-1 mt-1">
-                  <Clock className="h-3 w-3 text-gray-400" />
-                  <span className="text-[11px] text-gray-400">{h.time}</span>
-                </div>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </aside>
-
-      {/* Conversation */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header de conversation */}
-        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shrink-0">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-[#354F99]" />
-            <span className="text-sm font-semibold text-gray-900">Chat juridique RH</span>
-          </div>
-          <button className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-gray-300 transition-colors">
-            <Download className="h-3.5 w-3.5" />
-            Exporter PDF
+          <button
+            onClick={createConversation}
+            title="Nouvelle conversation"
+            className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#354F99] text-white hover:bg-[#2d4387] transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
           </button>
         </div>
 
+        {conversations.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center px-4">
+            <p className="text-xs text-gray-400 text-center">Aucune conversation.<br />Cliquez sur + pour commencer.</p>
+          </div>
+        ) : (
+          <ul className="flex-1 overflow-auto px-3 py-3 space-y-1">
+            {conversations.map((conv) => (
+              <li key={conv.id}>
+                <button
+                  onClick={() => setActiveId(conv.id)}
+                  className={`group w-full text-left px-3 py-3 rounded-xl transition-colors flex items-start justify-between gap-2 ${
+                    activeId === conv.id ? "bg-[#354F99]/10 border border-[#354F99]/20" : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className={`text-sm font-medium truncate ${activeId === conv.id ? "text-[#354F99]" : "text-gray-700"}`}>
+                      {conv.title}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Clock className="h-3 w-3 text-gray-400 shrink-0" />
+                      <span className="text-[11px] text-gray-400">{relativeTime(conv.createdAt)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteConversation(conv.id); }}
+                    title="Supprimer"
+                    className="opacity-0 group-hover:opacity-100 flex h-5 w-5 items-center justify-center rounded text-gray-400 hover:text-red-500 transition-all shrink-0 mt-0.5"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </aside>
+
+      {/* Zone principale */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shrink-0">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-[#354F99]" />
+            <span className="text-sm font-semibold text-gray-900">
+              {activeConv?.title ?? "Chat juridique RH"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={createConversation}
+              className="md:hidden flex items-center gap-1.5 text-xs text-white bg-[#354F99] border border-[#354F99] rounded-lg px-3 py-1.5 hover:bg-[#2d4387] transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Nouveau
+            </button>
+            <button className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-gray-300 transition-colors">
+              <Download className="h-3.5 w-3.5" />
+              Exporter PDF
+            </button>
+          </div>
+        </div>
+
         {/* Messages ou écran d'accueil */}
-        {messages.length === 0 ? (
+        {!activeConv || activeConv.messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 px-6">
             <div className="w-full max-w-2xl flex flex-col items-center gap-6">
               <div className="flex flex-col items-center gap-2 text-center">
@@ -88,13 +228,14 @@ export function ChatJuridique() {
                   placeholder="Posez votre question..."
                   className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 outline-none bg-transparent"
                   autoFocus
+                  disabled={isSending}
                 />
                 <button
                   onClick={() => sendMessage(input)}
-                  disabled={!input.trim()}
+                  disabled={!input.trim() || isSending}
                   className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#354F99] text-white hover:bg-[#2d4387] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
                 >
-                  <Send className="h-3.5 w-3.5" />
+                  {isSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                 </button>
               </div>
               <p className="text-[11px] text-gray-400">
@@ -105,34 +246,34 @@ export function ChatJuridique() {
         ) : (
           <>
             <div className="flex-1 overflow-auto px-8 py-8 space-y-8 bg-gray-50">
-              {messages.map((m, i) => (
+              {activeConv.messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                   {m.role === "user" ? (
                     <div className="max-w-[70%] bg-gray-900 text-white text-sm rounded-2xl px-5 py-3.5 leading-relaxed">
                       {m.text}
                     </div>
+                  ) : m.role === "error" ? (
+                    <div className="max-w-[80%] bg-red-50 border border-red-200 text-sm text-red-700 rounded-2xl px-6 py-5 shadow-sm leading-relaxed">
+                      {m.text}
+                    </div>
                   ) : (
-                    <div className="max-w-[80%] space-y-3">
-                      <div className="bg-white border border-gray-200 text-sm text-gray-800 rounded-2xl px-6 py-5 shadow-sm leading-relaxed">
-                        {m.text}
-                      </div>
-                      {m.sources && m.sources.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 px-1">
-                          {m.sources.map((s, j) => (
-                            <span key={j} className="inline-flex items-center gap-1 text-[11px] text-[#354F99] bg-[#354F99]/10 border border-[#354F99]/20 px-2 py-0.5 rounded-full">
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                    <div className="max-w-[80%] bg-white border border-gray-200 text-sm text-gray-800 rounded-2xl px-6 py-5 shadow-sm leading-relaxed whitespace-pre-wrap">
+                      {m.text}
                     </div>
                   )}
                 </div>
               ))}
+              {isSending && (
+                <div className="flex justify-start">
+                  <div className="bg-white border border-gray-200 rounded-2xl px-6 py-4 shadow-sm flex items-center gap-2 text-sm text-gray-400">
+                    <Loader2 className="h-4 w-4 animate-spin text-[#354F99]" />
+                    Réponse en attente…
+                  </div>
+                </div>
+              )}
               <div ref={bottomRef} />
             </div>
 
-            {/* Champ de saisie */}
             <div className="px-6 py-4 bg-white border-t border-gray-200 shrink-0">
               <div className="flex items-center gap-3 border border-gray-200 rounded-xl px-4 py-3 focus-within:border-[#354F99] transition-colors">
                 <input
@@ -141,13 +282,14 @@ export function ChatJuridique() {
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
                   placeholder="Posez votre question..."
                   className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 outline-none bg-transparent"
+                  disabled={isSending}
                 />
                 <button
                   onClick={() => sendMessage(input)}
-                  disabled={!input.trim()}
+                  disabled={!input.trim() || isSending}
                   className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#354F99] text-white hover:bg-[#2d4387] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0"
                 >
-                  <Send className="h-3.5 w-3.5" />
+                  {isSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                 </button>
               </div>
               <p className="text-[11px] text-gray-400 mt-1.5 text-center">
