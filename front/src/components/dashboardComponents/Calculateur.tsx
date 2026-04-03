@@ -32,6 +32,17 @@ export function Calculateur() {
   const [motifLicenciement, setMotifLicenciement] = useState("personnel");
   const [resultat, setResultat] = useState<ResultatCalculIndemnite | null>(null);
   const [formuleApplicable, setFormuleApplicable] = useState("");
+  const [alertError, setAlertError] = useState<{ title: string; detail: string } | null>(null);
+
+  const onIntegerChange = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setter(e.target.value.replace(/[^0-9]/g, ""));
+  };
+  const onDecimalChange = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/[^0-9.]/g, "");
+    const firstDot = raw.indexOf(".");
+    if (firstDot !== -1) raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, "");
+    setter(raw);
+  };
 
   const lancerCalcul = () => {
     const raisonResiliation = MOTIF_VERS_RAISON_RESILIATION[motifLicenciement] ?? "standard";
@@ -112,14 +123,14 @@ export function Calculateur() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Ancienneté — Années</label>
-              <input type="number" min="0" value={ancienneteAnnees} onChange={(e) => setAncienneteAnnees(e.target.value)} onKeyDown={blockNonInteger} className={inputClass} />
+              <input type="text" inputMode="numeric" value={ancienneteAnnees} onChange={onIntegerChange(setAncienneteAnnees)} className={inputClass} />
             </div>
             <div>
               <label className={labelClass}>
                 Ancienneté — Mois{" "}
                 <span className="text-gray-400 font-normal">(0 à 11)</span>
               </label>
-              <input type="number" min="0" max="11" value={ancienneteMois} onChange={(e) => setAncienneteMois(e.target.value)} onKeyDown={blockNonInteger} className={inputClass} />
+              <input type="text" inputMode="numeric" value={ancienneteMois} onChange={onIntegerChange(setAncienneteMois)} className={inputClass} />
             </div>
           </div>
 
@@ -130,21 +141,21 @@ export function Calculateur() {
                 Salaire mensuel brut{" "}
                 <span className="text-gray-400 font-normal">(€ / mois)</span>
               </label>
-              <input type="number" min="0" step="50" value={salaireMensuelBrut} onChange={(e) => setSalaireMensuelBrut(e.target.value)} onKeyDown={blockNonDecimal} className={inputClass} />
+              <input type="text" inputMode="decimal" value={salaireMensuelBrut} onChange={onDecimalChange(setSalaireMensuelBrut)} className={inputClass} />
             </div>
             <div>
               <label className={labelClass}>
                 Moyenne 12 derniers mois{" "}
                 <span className="text-gray-400 font-normal">(€ / mois)</span>
               </label>
-              <input type="number" min="0" step="50" value={salaireMoyen12Mois} onChange={(e) => setSalaireMoyen12Mois(e.target.value)} onKeyDown={blockNonDecimal} className={inputClass} />
+              <input type="text" inputMode="decimal" value={salaireMoyen12Mois} onChange={onDecimalChange(setSalaireMoyen12Mois)} className={inputClass} />
             </div>
             <div>
               <label className={labelClass}>
                 Moyenne 3 derniers mois{" "}
                 <span className="text-gray-400 font-normal">(€ / mois)</span>
               </label>
-              <input type="number" min="0" step="50" value={salaireMoyen3Mois} onChange={(e) => setSalaireMoyen3Mois(e.target.value)} onKeyDown={blockNonDecimal} className={inputClass} />
+              <input type="text" inputMode="decimal" value={salaireMoyen3Mois} onChange={onDecimalChange(setSalaireMoyen3Mois)} className={inputClass} />
             </div>
           </div>
 
@@ -154,7 +165,7 @@ export function Calculateur() {
               Coefficient temps partiel{" "}
               <span className="text-gray-400 font-normal">(1 = temps plein)</span>
             </label>
-            <input type="number" min="0.01" max="1" step="0.01" value={ratioTempsPartiel} onChange={(e) => setRatioTempsPartiel(e.target.value)} onKeyDown={blockNonDecimal} className={inputClass} />
+            <input type="text" inputMode="decimal" value={ratioTempsPartiel} onChange={onDecimalChange(setRatioTempsPartiel)} className={inputClass} />
           </div>
 
           <button
@@ -228,3 +239,4 @@ export function Calculateur() {
     </div>
   );
 }
+
