@@ -358,8 +358,7 @@ export const useContractAnalysis = (): UseContractAnalysisReturn => {
     setIsProcessing(false);
     setIsMarketAnalysisLoading(false);
     setProcessingPhase("extraction");
-    setHtmlContent(null);
-  }, [setHtmlContent]);
+  }, []);
 
   return {
     contract,

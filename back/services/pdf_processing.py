@@ -363,8 +363,8 @@ def _extract_html_from_pdf_dict(content: bytes) -> Optional[str]:
         result = "\n".join(html_parts)
         return result if result.strip() else None
 
-    except Exception as e:
-        logger.warning(f"Erreur extraction HTML depuis PDF: {e}")
+    except Exception as error:
+        logger.warning(f"Erreur extraction HTML depuis PDF: {error}")
         return None
 
 
