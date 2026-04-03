@@ -38,7 +38,7 @@ export function Calculateur() {
     setter(e.target.value.replace(/[^0-9]/g, ""));
   };
   const onDecimalChange = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    let raw = e.target.value.replace(/[^0-9.]/g, "");
+    let raw = e.target.value.replace(/,/g, ".").replace(/[^0-9.]/g, "");
     const firstDot = raw.indexOf(".");
     if (firstDot !== -1) raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, "");
     setter(raw);
