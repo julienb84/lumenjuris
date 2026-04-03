@@ -18,7 +18,7 @@ const LIBELLE_MOTIF: Record<string, string> = {
   faute_lourde: "Faute lourde — aucune indemnité",
 };
 
-const inputClass = "w-full text-sm border border-gray-300 rounded-md px-3 py-2 outline-none focus:border-[#1a2d5a] focus:ring-1 focus:ring-[#1a2d5a] transition-colors bg-white text-gray-800";
+const inputClass = "w-full text-sm border border-gray-300 rounded-md px-3 py-2 outline-none focus:border-lumenjuris focus:ring-1 focus:ring-lumenjuris transition-colors bg-white text-gray-800";
 const labelClass = "block text-sm font-medium text-gray-700 mb-1";
 
 export function Calculateur() {
@@ -170,7 +170,7 @@ export function Calculateur() {
 
           <button
             onClick={lancerCalcul}
-            className="w-full bg-[#1a2d5a] text-white text-sm font-semibold py-3 rounded-lg hover:bg-[#152449] transition-colors"
+            className="w-full bg-lumenjuris text-white text-sm font-semibold py-3 rounded-lg hover:bg-lumenjuris-dark transition-colors"
           >
             Calculer
           </button>
@@ -186,7 +186,7 @@ export function Calculateur() {
           <div className="px-6 py-5 space-y-4">
             <div className="text-center py-2">
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Indemnité estimée</p>
-              <p className="text-4xl font-bold text-[#1a2d5a]">
+              <p className="text-4xl font-bold text-lumenjuris">
                 {resultat.indemnityAmount.toLocaleString("fr-FR", { maximumFractionDigits: 0 })} €
               </p>
               <p className="text-xs text-gray-400 mt-1">Minimum légal</p>

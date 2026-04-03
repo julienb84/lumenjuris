@@ -35,7 +35,7 @@ const PRESETS: { label: string; variant: AlertVariant; title: string; detail?: s
   },
 ];
 
-const inputClass = "w-full text-sm border border-gray-300 rounded-md px-3 py-1.5 outline-none focus:border-[#1a2d5a] focus:ring-1 focus:ring-[#1a2d5a]";
+const inputClass = "w-full text-sm border border-gray-300 rounded-md px-3 py-1.5 outline-none focus:border-lumenjuris-dark focus:ring-1 focus:ring-lumenjuris-dark";
 
 export function Sandbox() {
   const [banners, setBanners] = useState<{ id: number; preset: typeof PRESETS[number]; duration: number; title: string; detail: string; accent: boolean }[]>([]);
@@ -91,13 +91,13 @@ export function Sandbox() {
                   const v = e.target.value.replace(/[^0-9]/g, "");
                   setDuration(v === "" ? 3000 : parseInt(v));
                 }}
-                className="w-24 text-sm border border-gray-300 rounded-md px-3 py-1.5 outline-none focus:border-[#1a2d5a] focus:ring-1 focus:ring-[#1a2d5a]"
+                className="w-24 text-sm border border-gray-300 rounded-md px-3 py-1.5 outline-none focus:border-lumenjuris-dark focus:ring-1 focus:ring-lumenjuris-dark"
               />
             </div>
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <div
                 onClick={() => setAccent((v) => !v)}
-                className={`relative w-9 h-5 rounded-full transition-colors ${accent ? "bg-[#1a2d5a]" : "bg-gray-200"}`}
+                className={`relative w-9 h-5 rounded-full transition-colors ${accent ? "bg-lumenjuris-dark" : "bg-gray-200"}`}
               >
                 <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${accent ? "translate-x-4" : ""}`} />
               </div>

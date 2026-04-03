@@ -36,7 +36,7 @@ const mockRisks: Risk[] = [
 const RISK_CONFIG: Record<RiskLevel, { icon: typeof AlertTriangle; iconClass: string; borderClass: string }> = {
   high:   { icon: AlertTriangle, iconClass: "text-red-500",    borderClass: "border-red-100"    },
   medium: { icon: AlertCircle,   iconClass: "text-amber-500",  borderClass: "border-amber-100"  },
-  ok:     { icon: CheckCircle,   iconClass: "text-[#354F99]",  borderClass: "border-[#354F99]/20" },
+  ok:     { icon: CheckCircle,   iconClass: "text-lumenjuris",  borderClass: "border-lumenjuris/20" },
 };
 
 export function Conformite() {
@@ -66,7 +66,7 @@ export function Conformite() {
             fieldTitle="Glissez-déposez votre document"
             fieldDescription="PDF, DOCX – Max 10 Mo"
             supportedFileType="PDF / DOCX"
-            fieldClassName="mb-0 p-6 border-gray-200 hover:border-[#354F99]/40 hover:bg-gray-50"
+            fieldClassName="mb-0 p-6 border-gray-200 hover:border-lumenjuris/40 hover:bg-gray-50"
             iconClassName="w-10 h-10 bg-slate-100 text-gray-300"
             fieldTitleClassName="text-sm font-medium mb-0 text-gray-700"
             fieldDescriptionClassName="text-xs text-gray-400 mb-0"
@@ -75,7 +75,7 @@ export function Conformite() {
 
           <button
             disabled
-            className="w-full bg-[#354F99] text-white text-sm font-semibold py-3 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="w-full bg-lumenjuris text-white text-sm font-semibold py-3 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Analyser le document
           </button>
@@ -92,7 +92,7 @@ export function Conformite() {
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold text-gray-900">Score de conformité</h2>
-              <span className="text-xs font-semibold text-[#354F99] bg-[#354F99]/10 border border-[#354F99]/20 px-2.5 py-1 rounded-full">
+              <span className="text-xs font-semibold text-lumenjuris bg-lumenjuris/10 border border-lumenjuris/20 px-2.5 py-1 rounded-full">
                 Conforme
               </span>
             </div>
@@ -109,7 +109,7 @@ export function Conformite() {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-[#354F99]">
+                <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-lumenjuris">
                   85%
                 </span>
               </div>
@@ -119,7 +119,7 @@ export function Conformite() {
                   <span className="font-semibold">17/20</span>
                 </div>
                 <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-                  <div className="h-full bg-[#354F99] rounded-full" style={{ width: "85%" }} />
+                  <div className="h-full bg-lumenjuris rounded-full" style={{ width: "85%" }} />
                 </div>
                 <p className="text-xs text-gray-400">3 points nécessitent votre attention</p>
               </div>
