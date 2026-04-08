@@ -16,8 +16,6 @@ import { AnalysisContext } from "../../types/contextualAnalysis";
 import { findBestClauseSpan } from "../../utils/textPatchLocator";
 import { formatContentToHtml } from "../../utils/documentViewerTools/formatContentToHtml";
 import { injectClausesIntoHtml } from "../../utils/documentViewerTools/injectClausesIntoHtml";
-import { modernHighlighter } from "../../utils/modernHighlighter";
-
 import { useEditor, EditorContent } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
 import { Mark, mergeAttributes } from "@tiptap/core";
@@ -60,6 +58,7 @@ interface DocumentViewerProps {
   contractSummary?: AnalysisContext;
   recommendationIndex: number;
   setRecommendationIndex: (number: number) => void;
+  activeClauseId?: string | null;
 }
 
 export interface DocumentViewerRef {
@@ -79,6 +78,7 @@ export const DocumentViewer = forwardRef<
       contractSummary,
       recommendationIndex: _recommendationIndex,
       setRecommendationIndex: _setRecommendationIndex,
+      activeClauseId,
     },
     ref,
   ) => {
@@ -124,11 +124,10 @@ export const DocumentViewer = forwardRef<
     };
 
     const scrollAndHighlightClause = (clause: ClauseRisk) => {
-      if (!documentRef.current || !clause.content) return;
-      try {
-        modernHighlighter.highlightClause(clause, documentRef.current);
-      } catch (error) {
-        console.error("❌ Modern highlighting error:", error);
+      if (!documentRef.current || !clause.id) return;
+      const span = documentRef.current.querySelector(`[data-clause-risk-id="${clause.id}"]`);
+      if (span) {
+        span.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     };
 
@@ -241,6 +240,15 @@ export const DocumentViewer = forwardRef<
                 transition={{ duration: 0.4 }}
               >
                 <div className="max-w-4xl mx-auto">
+                  {activeClauseId && (
+                    <style>{`
+                      [data-clause-risk-id]:not([data-clause-risk-id="${activeClauseId}"]) {
+                        background-color: transparent !important;
+                        border-bottom-color: transparent !important;
+                        transition: background-color 0.25s, border-bottom-color 0.25s;
+                      }
+                    `}</style>
+                  )}
                   {htmlFormattedContent.length > 0 ? (
                     <div ref={tiptapWrapperRef}>
                       <EditorContent editor={editor} />
