@@ -60,6 +60,7 @@ interface DocumentViewerProps {
   contractSummary?: AnalysisContext;
   recommendationIndex: number;
   setRecommendationIndex: (number: number) => void;
+  activeClauseId: string | null;
 }
 
 export interface DocumentViewerRef {
@@ -79,6 +80,7 @@ export const DocumentViewer = forwardRef<
       contractSummary,
       recommendationIndex: _recommendationIndex,
       setRecommendationIndex: _setRecommendationIndex,
+      activeClauseId,
     },
     ref,
   ) => {
@@ -99,6 +101,7 @@ export const DocumentViewer = forwardRef<
     const [_editingClauseId, setEditingClauseId] = useState<string | null>(
       null,
     );
+
     const lastClick = useRef(0);
 
     const handleClickSpanClause = (clauseId: string) => {
@@ -241,6 +244,9 @@ export const DocumentViewer = forwardRef<
                 transition={{ duration: 0.4 }}
               >
                 <div className="max-w-4xl mx-auto">
+                  {activeClauseId && (
+                    <style>{`[data-clause-risk-id]:not([data-clause-risk-id="${activeClauseId}"]) {background-color: transparent !important; border-bottom-color: transparent !important; transition: background-color 250, border-bottom-color 250}`}</style>
+                  )}
                   {htmlFormattedContent.length > 0 ? (
                     <div ref={tiptapWrapperRef}>
                       <EditorContent editor={editor} />
