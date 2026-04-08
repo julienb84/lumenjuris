@@ -39,7 +39,9 @@ app.get("/health", (req: Request, res: Response) => {
 
 
 async function sandbox(){
-    const mailer = await  new Mailer("l.beaute@laposte.net").sendVerifyAccount("url", "beaute laurent")
+
+    //Vous pouvez faire vos testes içi
+    console.log("Sandbox running")
 }
 
 
