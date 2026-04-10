@@ -77,7 +77,7 @@ const SignupForm = () => {
               <Input
                 id="lastname"
                 type="text"
-                placeholder="Votre nom"
+                placeholder="Ex : Doe"
                 required
                 onChange={handleChangeLastname}
               />
@@ -89,7 +89,7 @@ const SignupForm = () => {
               <Input
                 id="firstname"
                 type="text"
-                placeholder="Votre prénom"
+                placeholder="Ex : Jenny"
                 required
                 onChange={handleChangeFirstname}
               />
@@ -122,7 +122,15 @@ const SignupForm = () => {
                   <EyeOffIcon />
                 </InputGroupAddon>
               </InputGroup>
-              <FieldDescription>Au moins 8 charactères</FieldDescription>
+              <FieldDescription>
+                Doit contenir :
+                <ul className="pl-2 text-black/50">
+                  <li>- au moins 8 charactères</li>
+                  <li>- une majuscule</li>
+                  <li>- un charactère spécial</li>
+                  <li>- et un chiffre</li>
+                </ul>
+              </FieldDescription>
             </Field>
           </div>
           <div className="grid gap-2">
@@ -142,9 +150,6 @@ const SignupForm = () => {
                   <EyeOffIcon />
                 </InputGroupAddon>
               </InputGroup>
-              <FieldDescription>
-                Saisissez à nouveau votre mot de passe
-              </FieldDescription>
             </Field>
           </div>
           <div className="grid gap-2">
