@@ -87,8 +87,9 @@ model Enterprise {
   siren                String?
   codeNaf              String?
   intituleNaf          String?
-  name                 String? 
+  name                 String?
   conventionCollective String?
+  idccSelections       Json?
   statusJuridique      String?
 
   //relation
