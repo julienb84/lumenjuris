@@ -247,7 +247,7 @@ const SignupForm = ({
                   onClick={() => setShowPassword(!showPassword)}
                   className="hover:cursor-pointer"
                 >
-                  {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </InputGroupAddon>
               </InputGroup>
               <FieldError
@@ -284,7 +284,7 @@ const SignupForm = ({
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="hover:cursor-pointer"
                 >
-                  {showConfirmPassword ? <EyeIcon /> : <EyeOffIcon />}
+                  {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </InputGroupAddon>
               </InputGroup>
               <FieldError
