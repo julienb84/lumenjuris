@@ -122,7 +122,6 @@ const LoginForm = ({
           variant="success"
           detail="Un email avec un lien de réinitialisation à été envoyé à votre adresse email"
           onClose={() => {
-            setSubmitForgotError(false);
             setForgotPassword(true);
           }}
         />
@@ -239,9 +238,9 @@ const LoginForm = ({
               >
                 Se connecter
               </Button>
-              <button className="w-full h-10 border border-lumenjuris text-[20px] flex justify-center items-center gap-2 rounded-md text-lumenjuris">
-                <FcGoogle />
-                <span className="text-[14px]">Se connecter avec Google</span>
+              <button className="w-full h-10 border border-lumenjuris text-sm font-medium inline-flex justify-center items-center gap-2 rounded-md text-lumenjuris">
+                <FcGoogle className="text-[20px]" />
+                Se connecter avec Google
               </button>
               <Button
                 variant="ghost"

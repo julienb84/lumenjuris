@@ -376,9 +376,9 @@ const SignupForm = ({
             >
               S'inscrire
             </Button>
-            <button className="w-full h-10 border border-lumenjuris text-[20px] flex justify-center items-center gap-2 rounded-md text-lumenjuris">
-              <FcGoogle />
-              <span className="text-[14px]">Se connecter avec Google</span>
+            <button className="w-full h-10 border border-lumenjuris text-sm font-medium inline-flex justify-center items-center gap-2 rounded-md text-lumenjuris">
+              <FcGoogle className="text-[20px]" />
+              Se connecter avec Google
             </button>
           </div>
         </section>
