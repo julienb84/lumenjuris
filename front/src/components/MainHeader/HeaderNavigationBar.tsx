@@ -20,7 +20,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
           className={
             pathname === "/inscription"
               ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
-              : "text-gray-400"
+              : "text-gray-400 hover:bg-lumenjuris-background"
           }
           onClick={onNavClick}
         >
@@ -36,7 +36,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
           className={
             pathname === "/analyzer"
               ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
-              : "text-gray-400"
+              : "text-gray-400 hover:bg-lumenjuris-background"
           }
         >
           <FileCheckIcon />
@@ -50,7 +50,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
           className={
             pathname === "/mon-compte"
               ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
-              : "text-gray-400"
+              : "text-gray-400 hover:bg-lumenjuris-background"
           }
           onClick={onNavClick}
         >
@@ -65,7 +65,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
           className={
             pathname === "/sandbox"
               ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
-              : "text-gray-400"
+              : "text-gray-400 hover:bg-lumenjuris-background"
           }
           onClick={onNavClick}
         >
