@@ -40,6 +40,7 @@ const LoginForm = ({
   const [submitError, setSubmitError] = useState(false);
   const [submitForgotError, setSubmitForgotError] = useState(false);
   const [serverError, setServerError] = useState(false);
+  const [serverErrorMessage, setServerErrorMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -50,14 +51,6 @@ const LoginForm = ({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const loginRequest = new Request("/api/login", {
-      method: "POST",
-      body: JSON.stringify({
-        email: { email },
-        password: { password },
-      }),
-    });
 
     if (!email || !password) {
       setSubmitError(true);
@@ -74,11 +67,14 @@ const LoginForm = ({
             password: { password },
           }),
         });
-        const data = loginResponse.json();
+
+        const data = await loginResponse.json();
         console.log("▶️▶️ RETOUR SERVEUR CONNEXION :", data);
+
         if (!loginResponse.ok) {
           setServerError(true);
-          throw new Error(`BackNode Error : ${loginResponse.status}`);
+          setServerErrorMessage(data.message);
+          throw new Error(`BackNode Auth Error : ${loginResponse.status}`);
         } else {
           setSubmitLoading(false);
           navigate("/dashboard");
@@ -102,13 +98,6 @@ const LoginForm = ({
   const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setEmail(value);
-    // const emailRegex =
-    //   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    // if (value.length > 0 && !emailRegex.test(value)) {
-    //   setEmailError("L'adresse email n'est pas valide");
-    // } else {
-    //   setEmailError("");
-    // }
   };
 
   const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,7 +133,7 @@ const LoginForm = ({
         <AlertBanner
           title="Erreur serveur"
           variant="error"
-          detail="Une erreur s'est produite, veuillez réessayer"
+          detail={serverErrorMessage}
           onClose={() => {
             setServerError(false);
             setSubmitLoading(false);

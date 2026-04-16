@@ -95,12 +95,14 @@ const SignupForm = ({
             cgu: acceptCgu,
           }),
         });
+
         const data = await signupResponse.json();
         console.log("▶️▶️ RETOUR PROXY INSCRIPTION :", data);
+
         if (!signupResponse.ok) {
           setServerError(true);
           setServerErrorMessage(data.message);
-          throw new Error(`BackNode Error : ${signupResponse.status}`);
+          throw new Error(`BackNode Auth Error : ${signupResponse.status}`);
         } else {
           setSubmitSuccess(true);
           setSuccessMessage(data.message);
@@ -108,9 +110,9 @@ const SignupForm = ({
       } catch (error) {
         setServerError(true);
         setServerErrorMessage(
-          "Une erreur s'est produite, veuillez vérifier vos informations",
+          "Une erreur s'est produite, nous n'avons pas pu créer votre compte",
         );
-        console.log("🛑🛑🛑 ERREUR SERVEUR INSCRIPTION", error);
+        console.error("🛑🛑🛑 ERREUR SERVEUR INSCRIPTION", error);
       }
     }
   };
