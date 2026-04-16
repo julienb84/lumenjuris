@@ -7,7 +7,7 @@ import { createCookieAuth } from "../securite/cookieAuth";
 import { prisma } from "../../prisma/singletonPrisma";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { Google } from "../services/classGoogle";
-// import { TokenState } from "../../prisma/generated/enums"
+// import { TokenState } from "../../prisma/generated/enums";
 
 const routerUser: Router = express.Router();
 
@@ -83,46 +83,46 @@ routerUser.get(
         );
       }
 
-      //Le token est déjà utilisé
-      //   if (tokenEntry.status === TokenState.USED) {
-      //     return res.redirect(
-      //       `${process.env.HOST_FRONT}/verify-account?reason=already-used`,
-      //     );
-      //   }
+      // Le token est déjà utilisé
+      // if (tokenEntry.status === TokenState.USED) {
+      //   return res.redirect(
+      //     `${process.env.HOST_FRONT}/verify-account?reason=already-used`,
+      //   );
+      // }
 
-      //   if (tokenEntry.status !== "ACTIVE") {
-      //     return res.redirect(
-      //       `${process.env.HOST_FRONT}/verify-account?reason=already-used`,
-      //     );
-      //   }
+      if (tokenEntry.status !== "ACTIVE") {
+        return res.redirect(
+          `${process.env.HOST_FRONT}/verify-account?reason=already-used`,
+        );
+      }
 
       //Le token est expiré
-      //   if (tokenEntry.expiresAt < new Date()) {
-      //     await prisma.token.update({
-      //       where: { token },
-      //       data: { status: "EXPIRED" },
-      //     });
+      if (tokenEntry.expiresAt < new Date()) {
+        await prisma.token.update({
+          where: { token },
+          data: { status: "EXPIRED" },
+        });
 
-      //     return res.redirect(
-      //       `${process.env.HOST_FRONT}/verify-account?reason=expired`,
-      //     );
-      //   }
+        return res.redirect(
+          `${process.env.HOST_FRONT}/verify-account?reason=expired`,
+        );
+      }
 
-      //   const idUser = tokenEntry.userId;
-      //   const updatedUser = await prisma.user.update({
-      //     where: { idUser },
-      //     data: {
-      //       isVerified: true,
-      //     },
-      //   });
+      const idUser = tokenEntry.userId;
+      const updatedUser = await prisma.user.update({
+        where: { idUser },
+        data: {
+          isVerified: true,
+        },
+      });
 
-      //   await prisma.token.update({
-      //     where: { token },
-      //     data: { status: "USED" },
-      //   });
+      await prisma.token.update({
+        where: { token },
+        data: { status: "USED" },
+      });
 
-      //   createCookieAuth(idUser, updatedUser.role, res);
-      //   return res.redirect(`${process.env.HOST_FRONT}/dashboard?verified=true`);
+      createCookieAuth(idUser, updatedUser.role, res);
+      return res.redirect(`${process.env.HOST_FRONT}/dashboard?verified=true`);
     } catch (err) {
       console.error(`Erreur lors de la validation utilisateur:\n${err}`);
       return res.redirect(

@@ -79,8 +79,18 @@ const LoginForm = ({
           setSuccessMessage(data.message);
           navigate("/dashboard");
         }
-      } catch (error) {}
+      } catch (error) {
+        setServerError(true);
+        setServerErrorMessage(
+          "Une erreur s'est produite, la connexion a échouée...",
+        );
+        console.error("🛑🛑🛑 ERREUR SERVEUR CONNEXION", error);
+      }
     }
+  };
+
+  const handleSubmitGoogle = () => {
+    window.location.href = "http://localhost:3020/auth/google";
   };
 
   const handleSubmitForgotPassword = (
@@ -109,9 +119,9 @@ const LoginForm = ({
     <div className="flex flex-col gap-5">
       {submitError && (
         <AlertBanner
-          title="Champs manquants"
+          title="Champs manquants !"
           variant="error"
-          detail="Vérifiez votre adresse email et votre mot de passe"
+          detail="Vérifiez votre adresse email et votre mot de passe."
           onClose={() => {
             setSubmitError(false);
           }}
@@ -119,9 +129,9 @@ const LoginForm = ({
       )}
       {submitForgotError && (
         <AlertBanner
-          title="Email manquant"
+          title="Email manquant !"
           variant="error"
-          detail="Pour réinitialiser votre mot de passe veuillez renseigner votre adresse email"
+          detail="Pour réinitialiser votre mot de passe veuillez renseigner votre adresse email."
           onClose={() => {
             setSubmitForgotError(false);
             setForgotPassword(true);
@@ -131,7 +141,7 @@ const LoginForm = ({
 
       {serverError && (
         <AlertBanner
-          title="Erreur serveur"
+          title="Erreur serveur !"
           variant="error"
           detail={serverErrorMessage}
           onClose={() => {
@@ -260,7 +270,11 @@ const LoginForm = ({
                 <LogInIcon />
                 Se connecter
               </Button>
-              <button className="w-full h-10 border border-lumenjuris text-sm font-medium inline-flex justify-center items-center gap-2 rounded-md text-lumenjuris">
+              <button
+                className="w-full h-10 border border-lumenjuris text-sm font-medium inline-flex justify-center items-center gap-2 rounded-md text-lumenjuris hover:bg-lumenjuris-background"
+                type="button"
+                onClick={handleSubmitGoogle}
+              >
                 <FcGoogle className="text-[20px]" />
                 Se connecter avec Google
               </button>

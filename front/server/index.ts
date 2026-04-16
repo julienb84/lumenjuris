@@ -163,6 +163,11 @@ app.post("/api/login", (req: Request, res: Response) => {
   relayToNode(req, res, "/user/auth/login");
 });
 
+// BackNode - Requête connexion GOOGLE
+// app.get("/api/login/google", (_req: Request, res: Response) => {
+//   res.redirect(`${BACKNODE_URL}/auth/google`);
+// });
+
 // ---- Front React : Vite middleware (dev) ou static (prod) ---------------------
 if (IS_PROD) {
   // En production : servir le build Vite

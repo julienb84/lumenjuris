@@ -103,16 +103,15 @@ const SignupForm = ({
       } catch (error) {
         setServerError(true);
         setServerErrorMessage(
-          "Une erreur s'est produite, nous n'avons pas pu créer votre compte",
+          "Une erreur s'est produite, nous n'avons pas pu créer votre compte...",
         );
         console.error("🛑🛑🛑 ERREUR SERVEUR INSCRIPTION", error);
       }
     }
   };
 
-  const handleSubmitGoogle = async () => {
-    try {
-    } catch (error) {}
+  const handleSubmitGoogle = () => {
+    window.location.href = "http://localhost:3020/auth/google";
   };
 
   const handleChangeLastname = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,9 +182,9 @@ const SignupForm = ({
     <div className="flex flex-col gap-5">
       {submitError && (
         <AlertBanner
-          title="Champs manquants"
+          title="Champs manquants !"
           variant="error"
-          detail="Certains champs obligatoires sont manquants"
+          detail="Certains champs obligatoires sont manquants."
           onClose={() => {
             setSubmitError(false);
           }}
@@ -193,9 +192,9 @@ const SignupForm = ({
       )}
       {submitCguError && (
         <AlertBanner
-          title="CGU"
+          title="CGU !"
           variant="error"
-          detail="Vous devez acceptez nos CGU"
+          detail="Vous devez acceptez nos CGU."
           onClose={() => {
             setSubmitCguError(false);
           }}
@@ -442,7 +441,8 @@ const SignupForm = ({
               S'inscrire
             </Button>
             <button
-              className="w-full h-10 border border-lumenjuris text-sm font-medium inline-flex justify-center items-center gap-2 rounded-md text-lumenjuris"
+              className="w-full h-10 border border-lumenjuris text-sm font-medium inline-flex justify-center items-center gap-2 rounded-md text-lumenjuris hover:bg-lumenjuris-background"
+              type="button"
               onClick={handleSubmitGoogle}
             >
               <FcGoogle className="text-[20px]" />

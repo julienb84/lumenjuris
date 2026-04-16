@@ -7,10 +7,20 @@ import {
   Bell,
   ChevronDown,
   LayoutDashboard,
+  LogOutIcon,
 } from "lucide-react";
 import { Button } from "../ui/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/DropDownMenu";
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 interface HeaderNavBarProps {
@@ -19,8 +29,14 @@ interface HeaderNavBarProps {
 
 const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
+
+  const handleUserLogout = () => {
+    setIsConnected(false);
+    // navigate("/inscription");
+  };
 
   return (
     <div className="flex items-center gap-2 lg:pr-2">
@@ -117,12 +133,29 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             <div className="h-8 w-8 rounded-full bg-lumenjuris flex items-center justify-center text-white text-xs font-medium">
               ML
             </div>
-            <div className="hidden md:flex items-center gap-1 cursor-pointer">
-              <span className="text-sm font-medium text-gray-800">
-                Marie L.
-              </span>
-              <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
-            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button className="hidden md:flex items-center gap-1 cursor-pointer text-sm font-medium text-gray-800">
+                    Marie L.
+                    <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                  </button>
+                }
+              />
+              <DropdownMenuContent
+                sideOffset={12}
+                className="min-w-28 bg-lumenjuris-background ring-lumenjuris/60 inline-flex justify-center font-medium text-sm"
+              >
+                <button
+                  onClick={handleUserLogout}
+                  className="cursor-pointer inline-flex justify-center items-center gap-1"
+                >
+                  Logout
+                  <LogOutIcon size={14} />
+                </button>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </section>
       ) : (
