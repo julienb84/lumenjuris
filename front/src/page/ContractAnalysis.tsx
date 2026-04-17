@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { UploadZone } from "../components/ContractAnalysis/UploadZone";
 import {
@@ -33,6 +33,26 @@ import { useDocumentTextStore } from "../store/documentTextStore";
 // ---------------------------------------------------------------------
 
 export default function ContractAnalysis() {
+  const [isConnected, setIsConnected] = useState(false);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch("/api/user/get", {
+  //         method: "GET",
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+
+  //       const dataResponse = await response.json();
+  //       if (dataResponse.success && dataResponse.data.profile.isVerified) {
+  //         setIsConnected(true);
+  //
+  //       }
+  //     } catch (error) {}
+  //   };
+  //   fetchData();
+  // }, []);
+
   const location = useLocation();
 
   // États locaux
@@ -243,7 +263,7 @@ export default function ContractAnalysis() {
 
   const clauseData = contract?.clauses.find((c) => c.id === selectedClause);
 
-  return (
+  return isConnected ? (
     <div className="min-h-screen bg-gray-50">
       <MainHeader
         onNavClick={handleNavClick}
@@ -432,5 +452,7 @@ export default function ContractAnalysis() {
 
       <Toaster position="top-right" />
     </div>
+  ) : (
+    <Navigate to="/inscription" />
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import {
   AlertBanner,
   type AlertVariant,
@@ -49,6 +50,27 @@ const inputClass =
   "w-full text-sm border border-gray-300 rounded-md px-3 py-1.5 outline-none focus:border-lumenjuris-dark focus:ring-1 focus:ring-lumenjuris-dark";
 
 export function Sandbox() {
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch("/api/user/get", {
+  //         method: "GET",
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+
+  //       const dataResponse = await response.json();
+  //       if (dataResponse.success && dataResponse.data.profile.isVerified && dataResponse.data.profile.role === "ADMIN" ) {
+  //         setIsAuthorized(true);
+  //
+  //         role = dataResponse.data.profile.role;
+  //       }
+  //     } catch (error) {}
+  //   };
+  //   fetchData();
+  // }, []);
+
   const [banners, setBanners] = useState<
     {
       id: number;
@@ -134,7 +156,7 @@ export function Sandbox() {
     }
   };
 
-  return (
+  return isAuthorized ? (
     <>
       <MainHeader />
       <div className="space-y-8 max-w-2xl mx-auto">
@@ -262,5 +284,7 @@ export function Sandbox() {
         </section>
       </div>
     </>
+  ) : (
+    <Navigate to="/dashboard" />
   );
 }

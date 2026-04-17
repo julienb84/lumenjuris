@@ -9,6 +9,7 @@ interface MainHeaderProps {
   onNavClick?: () => void;
   onReanalyze?: () => void;
   showReanalyze?: boolean;
+  setIsConnected?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const MainHeader = ({

@@ -218,6 +218,7 @@ const SignupForm = ({
           title="Inscription réussie !"
           variant="success"
           detail={successMessage}
+          duration={9000}
           onClose={() => {
             setSubmitSuccess(false);
             setSubmitLoading(false);

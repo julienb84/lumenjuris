@@ -32,31 +32,43 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
   const navigate = useNavigate();
 
   const [isConnected, setIsConnected] = useState(false);
-  const [userData, setUserData] = useState(null);
+  // const [userData, setUserData] = useState(null);
 
-  let role = null;
+  const userData = {
+    profile: {
+      email: "julienbouchez@icloud.com",
+      nom: "Bouchez",
+      prenom: "Julien",
+      role: "USER",
+      isVerified: true,
+    },
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/user/get", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
+  let role = userData.profile.role;
+  let avatarUrl =
+    "https://res.cloudinary.com/dldc2n70y/image/upload/v1771322353/abystyle-grendizer-aimant-tete-goldorak-_o7zelr.jpg";
 
-        const dataResponse = await response.json();
-        if (dataResponse.success && dataResponse.data.profile.isVerified) {
-          setIsConnected(true);
-          setUserData(dataResponse.data);
-          role = dataResponse.data.profile.role;
-        }
-      } catch (error) {}
-    };
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch("/api/user/get", {
+  //         method: "GET",
+  //         headers: { "Content-Type": "application/json" },
+  //       });
 
-  const firstName = "Julien";
-  const lastName = "Bouchez";
+  //       const dataResponse = await response.json();
+  //       if (dataResponse.success && dataResponse.data.profile.isVerified) {
+  //         setIsConnected(true);
+  //         setUserData(dataResponse.data);
+  //         role = dataResponse.data.profile.role;
+  //       }
+  //     } catch (error) {}
+  //   };
+  //   fetchData();
+  // }, []);
+
+  const firstName = userData.profile.prenom;
+  const lastName = userData.profile.nom;
   const initials = `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`;
 
   const handleUserLogout = () => {
@@ -131,7 +143,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             </Button>
           </Link>
         )}
-        {isConnected && (
+        {isConnected && role === "ADMIN" && (
           <Link to="/sandbox">
             <Button
               variant="ghost"
@@ -156,9 +168,16 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-green-500" />
           </button>
           <div className="flex items-center gap-2 pl-3 border-l border-gray-200">
-            <div className="h-8 w-8 rounded-full bg-lumenjuris flex items-center justify-center text-white text-xs font-medium">
-              {initials}
-            </div>
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                className="h-8 w-8 rounded-full object-cover border border-lumenjuris/60"
+              ></img>
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-lumenjuris flex items-center justify-center text-white text-xs font-medium">
+                {initials}
+              </div>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, Navigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
@@ -29,9 +29,29 @@ const navItems = [
 ];
 
 export function MainLayout() {
+  const [isConnected, setIsConnected] = useState(false);
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  return (
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch("/api/user/get", {
+  //         method: "GET",
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+
+  //       const dataResponse = await response.json();
+  //       if (dataResponse.success && dataResponse.data.profile.isVerified) {
+  //         setIsConnected(true);
+  //
+  //       }
+  //     } catch (error) {}
+  //   };
+  //   fetchData();
+  // }, []);
+
+  return isConnected ? (
     <div
       className="flex min-h-screen w-full bg-[#f8f9fb]"
       style={{ fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif" }}
@@ -140,5 +160,7 @@ export function MainLayout() {
         </main>
       </div>
     </div>
+  ) : (
+    <Navigate to="inscription" />
   );
 }

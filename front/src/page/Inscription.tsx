@@ -5,7 +5,7 @@ import MainHeader from "../components/MainHeader/MainHeader";
 // UI //
 import { Button } from "../components/ui/Button";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export function Inscription() {
   const [isLoginOnScreen, setIsLoginOnScreen] = useState(true);
