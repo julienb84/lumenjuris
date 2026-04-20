@@ -12,6 +12,8 @@ import { TokenState } from "../../prisma/generated/enums"
 
 const routerUser: Router = express.Router()
 
+
+
 function normalizePreferenceUI(input: unknown) {
     if (!input || typeof input !== "object" || Array.isArray(input)) {
         return {
@@ -26,7 +28,11 @@ function normalizePreferenceUI(input: unknown) {
     }
 }
 
+
+
+
 routerUser.post("/create", async (req: Request, res: Response) => {
+
     try {
         const { email, nom, prenom, password, cgu, enterprise } = req.body
 
@@ -54,8 +60,8 @@ routerUser.post("/create", async (req: Request, res: Response) => {
         }
 
         const { idUser } = createdUser.data
-        const token = new Token().createToken(idUser, "verifyAccount")
-        const url = `${process.env.HOST}/user/verify/${token}`
+        const token = await new Token().createToken(idUser, "verifyAccount")
+        const url = `${process.env.HOST}/user/verify/${token.token}`
         const mailer = await new Mailer(email).sendVerifyAccount(url, `${prenom} ${nom}`)
 
         // Le signup n'appelle plus INSEE côté serveur.
@@ -77,83 +83,146 @@ routerUser.post("/create", async (req: Request, res: Response) => {
             message: "Une erreur est survenue avec le serveur, nous n'avons pas pu créer votre compte utilisateur.",
         })
     }
-})
+
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interface PutVerifyUser extends Record<string, string> {
-    token: string
+  token: string;
 }
 
-routerUser.get("/verify/:token", async (req: Request<PutVerifyUser>, res: Response) => {
+routerUser.get(
+  "/verify/:token",
+  async (req: Request<{ token: string }>, res: Response) => {
     try {
-        const { token } = req.params
+      const { token } = req.params
 
-        const tokenEntry = await prisma.token.findUnique({
-            where: { token },
-            include: { user: true },
-        })
+      const tokenEntry = await prisma.token.findUnique({
+        where: { token },
+        include: { user: true },
+      })
 
-        if (!tokenEntry) {
-            return res.redirect(`${process.env.HOST_FRONT}/verify-account?reason=invalid`)
-        }
+      // Token introuvable
+      if (!tokenEntry) {
+        return res.redirect(
+          `${process.env.HOST_FRONT}/verify-account?reason=invalid`
+        )
+      }
 
-        if (tokenEntry.status === TokenState.USED) {
-            return res.redirect(`${process.env.HOST_FRONT}/verify-account?reason=already-used`)
-        }
+      // Token déjà utilisé
+      if (tokenEntry.status === "USED") {
+        return res.redirect(
+          `${process.env.HOST_FRONT}/verify-account?reason=already-used`
+        )
+      }
 
-        if (tokenEntry.status !== "ACTIVE") {
-            return res.redirect(`${process.env.HOST_FRONT}/verify-account?reason=already-used`)
-        }
-
-        if (tokenEntry.expiresAt < new Date()) {
-            await prisma.token.update({
-                where: { token },
-                data: { status: "EXPIRED" },
-            })
-
-            return res.redirect(`${process.env.HOST_FRONT}/verify-account?reason=expired`)
-        }
-
-        const idUser = tokenEntry.userId
-        const updatedUser = await prisma.user.update({
-            where: { idUser },
-            data: {
-                isVerified: true,
-            },
-        })
-
+      // Token expiré
+      if (tokenEntry.expiresAt < new Date()) {
         await prisma.token.update({
-            where: { token },
-            data: { status: "USED" },
+          where: { token },
+          data: { status: "EXPIRED" },
         })
 
-        createCookieAuth(idUser, updatedUser.role, res)
-        return res.redirect(`${process.env.HOST_FRONT}/dashboard?verified=true`)
+        return res.redirect(
+          `${process.env.HOST_FRONT}/verify-account?reason=expired`
+        )
+      }
+
+      if (tokenEntry.status !== "ACTIVE") {
+        return res.redirect(
+          `${process.env.HOST_FRONT}/verify-account?reason=already-used`
+        )
+      }
+
+      const idUser = tokenEntry.userId
+
+      const updatedUser = await prisma.user.update({
+        where: { idUser },
+        data: {
+          isVerified: true,
+        },
+      })
+
+      await prisma.token.update({
+        where: { token },
+        data: { status: "USED" },
+      })
+
+      // Auth cookie
+      createCookieAuth(idUser, updatedUser.role, res)
+
+      return res.redirect(
+        `${process.env.HOST_FRONT}/dashboard?verified=true`
+      )
     } catch (err) {
-        console.error(`Erreur lors de la validation utilisateur:\n${err}`)
-        return res.redirect(`${process.env.HOST_FRONT}/verify-account?reason=server`)
+      console.error("Erreur lors de la validation utilisateur:", err)
+
+      return res.redirect(
+        `${process.env.HOST_FRONT}/verify-account?reason=server`
+      )
     }
-})
+  }
+)
+
+
+
+
+
+
+
+/**
+ * Endpoint utilisateur pour se deconnecter
+ */
 
 routerUser.post("/auth/logout", authMiddleware, (_req: Request, res: Response) => {
     try {
-        res.clearCookie("authLumenJuris", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-        })
 
-        return res.status(200).json({
-            success: true,
-            message: "L'utilisateur a été déconnecté avec succès.",
+      return res
+        .cookie("authLumenJuris", "", {
+          httpOnly: true,
+          secure: process.env.ENV === "production",
+          sameSite: "strict",
+          path: "/",
+          maxAge: 0,
         })
+        .json({
+          success: true,
+          message: "L'utilisateur a été déconnecté avec succès.",
+        });
     } catch (err) {
-        console.error(`Une erreur est survenue lors de la déconnexion d'un utilisateur, error : \n ${err}`)
-        return res.status(500).json({
-            success: false,
-            message: "Une erreur est survenue lors de la déconnexion d'un utilisateur.",
-        })
+      console.error(
+        `Une erreur est survenue lors de la déconnexion d'un utilisateur, error : \n ${err}`,
+      );
+      return res.status(500).json({
+        success: false,
+        message:"Une erreur est survenue lors de la déconnexion d'un utilisateur.",
+      });
     }
-})
+  },
+);
+
+
+
+
+/**
+ * Endpoint utilisateur pour s'authentifier.
+ * Necessite email et password accesseible dans req.body
+ */
 
 routerUser.post("/auth/login", async (req: Request, res: Response) => {
     try {
@@ -183,11 +252,28 @@ routerUser.post("/auth/login", async (req: Request, res: Response) => {
             message: "Une erreur est survenue lors de la connexion d'un utilisateur",
         })
     }
-})
+  
+});
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Endpoint User pour récuperer les données de l'utilisateur d'après son id dans le token d'authentification
+ */
 
 routerUser.get("/get", authMiddleware, async (req: Request, res: Response) => {
     try {
         const idUser = Number(req.idUser)
+
         const user = await new User().get(idUser)
 
         if (!user.success || !user.data) {
@@ -210,31 +296,34 @@ routerUser.get("/get", authMiddleware, async (req: Request, res: Response) => {
             },
             provider: {},
             enterprise: user.data.enterprise,
-            conventionCollectives: user.data.enterprise.idccSelections,
-            selectedConventionCollective: user.data.enterprise.selectedIdcc,
         }
 
         const userProviderGoogle = await new Google().get(idUser)
 
         if (userProviderGoogle.data) {
-            dataReturn.provider = {
-                ...userProviderGoogle.data,
-            }
+            dataReturn.provider = userProviderGoogle.data
         }
 
         return res.status(200).json({
             success: true,
-            message: "Les données de l'utilisateur ont été récupéré avec succès.",
+            message: "Les données de l'utilisateur ont été récupérées avec succès.",
             data: dataReturn,
         })
+
     } catch (err) {
-        console.error(`Une erreur est survenue lors de la récupération des données de l'utilisateur, error : \n ${err}`)
+        console.error( "Erreur récupération utilisateur:", err )
         return res.status(500).json({
             success: false,
-            message: "Une erreur est survenue lors de la récupération des données de l'utilisateur.",
+            message: "Erreur serveur lors de la récupération utilisateur.",
         })
     }
 })
+
+
+
+
+
+
 
 routerUser.put("/", authMiddleware, async (req: Request, res: Response) => {
     try {
@@ -295,6 +384,9 @@ routerUser.put("/", authMiddleware, async (req: Request, res: Response) => {
     }
 })
 
+
+
+
 routerUser.get("/preferences", authMiddleware, async (req: Request, res: Response) => {
     try {
         const idUser = Number(req.idUser)
@@ -317,6 +409,10 @@ routerUser.get("/preferences", authMiddleware, async (req: Request, res: Respons
         })
     }
 })
+
+
+
+
 
 routerUser.put("/preferences", authMiddleware, async (req: Request, res: Response) => {
     try {
@@ -350,6 +446,10 @@ routerUser.put("/preferences", authMiddleware, async (req: Request, res: Respons
     }
 })
 
+
+
+
+
 routerUser.post("/two-factor", authMiddleware, async (_req: Request, res: Response) => {
     return res.status(200).json({
         success: true,
@@ -359,6 +459,7 @@ routerUser.post("/two-factor", authMiddleware, async (_req: Request, res: Respon
         },
     })
 })
+
 
 routerUser.post("/export-data", authMiddleware, async (_req: Request, res: Response) => {
     return res.status(200).json({

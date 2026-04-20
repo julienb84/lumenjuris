@@ -8,6 +8,7 @@ type CreateDataDTO = {
     prenom?: string
     password?: string
     cgu: boolean
+    isVerified?: boolean
 }
 
 type UserAuthData = {
@@ -31,17 +32,22 @@ type ReturnData<T = any> = {
 }
 
 export class User {
-    private errorCatching(err: unknown, fn: string): { success: boolean, message: string } {
+
+
+    private errorCatching(
+        err: unknown,
+        fn: string
+    ): ReturnData {
         const e = err as any
 
-        console.error(`Erreur dans la fonction ${fn} : \n\n`, err)
+        console.error(`Erreur dans la fonction ${fn} :\n`, err)
 
         const constraintMap: Record<string, string> = {
             User_email_key: "Cet email est déjà utilisé.",
         }
 
         if (e?.code === "P2002") {
-            const message: string = e?.message || ""
+            const message = e?.message || ""
 
             for (const key in constraintMap) {
                 if (message.includes(key)) {
@@ -67,18 +73,17 @@ export class User {
 
         return {
             success: false,
-            message: "Une erreur est survenue avec le serveur, merci de réessayer plus tard.",
+            message: "Erreur serveur, veuillez réessayer plus tard.",
         }
     }
 
+
     private async hashPassword(password: string): Promise<string> {
-        const saltRound = 10
-        const salt = await bcrypt.genSalt(saltRound)
-        const passwordHash = await bcrypt.hash(password, salt)
-        return passwordHash
+        const salt = await bcrypt.genSalt(10)
+        return bcrypt.hash(password, salt)
     }
 
-    // Charge la ligne utilisateur avec sa relation entreprise, utile pour les écrans profil.
+
     private async findById(idUser: number) {
         return prisma.user.findUnique({
             where: { idUser },
@@ -92,10 +97,14 @@ export class User {
         })
     }
 
+
     async create(data: CreateDataDTO): Promise<ReturnData> {
         try {
-            const { email, nom, prenom, password, cgu } = data
-            const passwordHash = password ? await this.hashPassword(password) : null
+            const { email, nom, prenom, password, cgu, isVerified } = data
+
+            const passwordHash = password
+                ? await this.hashPassword(password)
+                : null
 
             const newUser = await prisma.user.create({
                 data: {
@@ -104,21 +113,26 @@ export class User {
                     prenom,
                     password: passwordHash,
                     cgu,
+                    isVerified: isVerified ?? false,
                 },
             })
 
-            console.log("New user create with prisma : ", newUser)
             return {
                 success: true,
-                message: "Le compte utilisateur a été créé avec succès.",
+                message: "Compte utilisateur créé avec succès.",
                 data: newUser,
             }
+
         } catch (err) {
             return this.errorCatching(err, "User.create")
         }
     }
 
-    async authenticate(password: string, email: string): Promise<ReturnData<UserAuthData>> {
+
+    async authenticate(
+        password: string,
+        email: string
+    ): Promise<ReturnData<UserAuthData>> {
         try {
             const findUser = await prisma.user.findUnique({
                 where: { email },
@@ -131,69 +145,81 @@ export class User {
                 }
             }
 
-            const verifyPassword = await bcrypt.compare(password, findUser.password)
+            const isValid = await bcrypt.compare(password, findUser.password)
 
             return {
-                success: verifyPassword,
-                message: verifyPassword ? "Connexion réussite" : "Email ou mot de passe invalide",
+                success: isValid,
+                message: isValid
+                    ? "Connexion réussie"
+                    : "Email ou mot de passe invalide",
                 data: {
+                    idUser: findUser.idUser,
                     email: findUser.email,
                     role: findUser.role,
                     isVerified: findUser.isVerified,
-                    idUser: findUser.idUser,
                 },
             }
+
         } catch (err) {
             return this.errorCatching(err, "User.authenticate")
         }
     }
 
-    async update(idUser: number, dataUpdated: DataUpdatedDTO): Promise<ReturnData> {
-        try {
-            const nextDataUpdated = { ...dataUpdated }
 
-            if (nextDataUpdated.password) {
-                nextDataUpdated.password = await this.hashPassword(nextDataUpdated.password)
+    async update(
+        idUser: number,
+        dataUpdated: DataUpdatedDTO
+    ): Promise<ReturnData> {
+        try {
+            const nextData = { ...dataUpdated }
+
+            if (nextData.password) {
+                nextData.password = await this.hashPassword(nextData.password)
             }
 
             await prisma.user.update({
                 where: { idUser },
-                data: nextDataUpdated,
+                data: nextData,
             })
 
             return {
                 success: true,
-                message: "Les informations ont été mises à jour",
+                message: "Utilisateur mis à jour avec succès.",
             }
+
         } catch (err) {
             return this.errorCatching(err, "User.update")
         }
     }
 
+
     async get(idUser: number): Promise<ReturnData> {
         try {
-            const dataUser = await this.findById(idUser)
+            const user = await this.findById(idUser)
 
-            if (!dataUser) {
+            if (!user) {
                 return {
                     success: false,
-                    message: "Aucune donnée utilisateur n'a été retrouvée.",
+                    message: "Utilisateur introuvable.",
                 }
             }
 
             return {
                 success: true,
-                message: "Les données de l'utilisateur ont été récupérées avec succès.",
+                message: "Utilisateur récupéré avec succès.",
                 data: {
-                    email: dataUser.email,
-                    nom: dataUser.nom,
-                    prenom: dataUser.prenom,
-                    role: dataUser.role,
-                    isVerified: dataUser.isVerified,
-                    stripeCustomerId: dataUser.stripeCustomerId,
-                    enterprise: formatCompanyProfile(dataUser.enterprise),
+                    email: user.email,
+                    nom: user.nom,
+                    prenom: user.prenom,
+                    role: user.role,
+                    isVerified: user.isVerified,
+                    stripeCustomerId: user.stripeCustomerId,
+                    enterprise: user.enterprise
+                        ? formatCompanyProfile(user.enterprise)
+                        : null,
                 },
             }
+
         } catch (err) {
             return this.errorCatching(err, "User.get")
         }
