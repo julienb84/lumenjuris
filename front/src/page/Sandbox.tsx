@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
 import {
   AlertBanner,
   type AlertVariant,
@@ -7,7 +7,7 @@ import {
 
 import MainHeader from "../components/MainHeader/MainHeader";
 
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const PRESETS: {
   label: string;
@@ -53,6 +53,8 @@ const inputClass =
 
 export function Sandbox() {
   const navigate = useNavigate();
+
+  const { userRole, userVerified, userConnected } = useAuth();
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -166,7 +168,7 @@ export function Sandbox() {
     }
   };
 
-  return (
+  return userConnected && userVerified && userRole === "ADMIN" ? (
     <>
       <MainHeader />
       <div className="space-y-8 max-w-2xl mx-auto">
@@ -294,5 +296,7 @@ export function Sandbox() {
         </section>
       </div>
     </>
+  ) : (
+    <Navigate to="/inscription" />
   );
 }

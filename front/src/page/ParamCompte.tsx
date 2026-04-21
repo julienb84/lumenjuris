@@ -3,21 +3,17 @@ import MainHeader from "../components/MainHeader/MainHeader";
 import { useState, useEffect, useContext } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
-type UserDataProfile = {
-  email: string;
-  nom: string;
-  prenom?: string;
-  role: "USER" | "ADMIN";
-  isVerified: boolean;
-};
+import { UserDataProfile } from "../types/userData";
 
 export function ParamCompte() {
   const [serverError, setServerError] = useState(false);
-  const [serverErrorMessage, setServerErrorMessage] = useState("");
-  const navigate = useNavigate();
+  const [serverErrorMessage, setServerErrorMessage] = useState<string | null>(
+    null,
+  );
+  const [userData, setUserData] = useState<UserDataProfile | null>(null);
+  const [userAvatar, setUserAvatar] = useState<string | null>("");
 
-  const [userData, setUserData] = useState({} as UserDataProfile);
-  const [userAvatar, setUserAvatar] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,11 +25,11 @@ export function ParamCompte() {
 
         const dataResponse = await response.json();
         console.log("USER DATA :", dataResponse);
-        if (!dataResponse.data.profile.isVerified) {
-          navigate("/inscription");
-        } else if (!dataResponse.ok) {
+        if (!dataResponse.ok) {
           setServerError(true);
           setServerErrorMessage(dataResponse.message);
+        } else if (!dataResponse.data.profile.isVerified) {
+          navigate("/inscription");
         } else if (
           dataResponse.success &&
           dataResponse.data.profile.isVerified

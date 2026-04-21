@@ -13,10 +13,6 @@ import { Button } from "../ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/DropDownMenu";
 
@@ -24,18 +20,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { useAuth } from "../../context/AuthContext";
+import { UserDataProfile } from "../../types/userData";
 
 interface HeaderNavBarProps {
   onNavClick?: () => void;
 }
-
-type UserDataProfile = {
-  email: string;
-  nom: string;
-  prenom?: string;
-  role: "USER" | "ADMIN";
-  isVerified: boolean;
-};
 
 const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
   const { pathname } = useLocation();
@@ -43,8 +32,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
   const { login, logout } = useAuth();
 
   const [isConnected, setIsConnected] = useState(false);
-  const [userData, setUserData] = useState({} as UserDataProfile);
-  const [userAvatarUrl, setUserAvatarUrl] = useState("");
+  const [userData, setUserData] = useState<UserDataProfile | null>(null);
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+  // const [userInfoError, setUserInfoError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,7 +46,12 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
 
         const dataResponse = await response.json();
         console.log("USER DATA :", dataResponse);
-        if (dataResponse.success && dataResponse.data.profile.isVerified) {
+        if (!dataResponse.success) {
+          alert(dataResponse.message);
+        } else if (
+          dataResponse.success &&
+          dataResponse.data.profile.isVerified
+        ) {
           setIsConnected(true);
           setUserData(dataResponse.data.profile);
           setUserAvatarUrl(dataResponse.data.provider.avatarUrl);
@@ -65,12 +60,10 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             dataResponse.data.profile.isVerified,
             true,
           );
-        } else {
-          setIsConnected(false);
         }
       } catch (error) {
         console.error("🛑🛑🛑 ERREUR SERVEUR GET USER", error);
-        setIsConnected(false);
+        alert("Un problème est survenu, veuillez vous reconnecter.");
       }
     };
     fetchData();
@@ -88,14 +81,16 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
         console.log("LOGOUT RES : ", logoutResponse);
         if (logoutResponse.success) {
           setIsConnected(false);
+          setUserData(null);
           logout();
           alert(logoutResponse.message);
-          // navigate("/inscription");
+          navigate("/inscription");
         } else {
           alert(logoutResponse.message);
         }
       } catch (error) {
-        alert(error);
+        alert("Une erreur s'est produite, vous n'avez pas été déconnecté...");
+        console.log(error);
       }
     };
     fetchLogout();
@@ -168,7 +163,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             </Button>
           </Link>
         )}
-        {isConnected && userData.role === "ADMIN" && (
+        {isConnected && userData?.role === "ADMIN" && (
           <Link to="/sandbox">
             <Button
               variant="ghost"
@@ -200,9 +195,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               ></img>
             ) : (
               <div className="h-8 w-8 rounded-full bg-lumenjuris flex items-center justify-center text-white text-xs font-medium">
-                {userData.prenom
+                {userData?.prenom
                   ? `${userData.prenom.slice(0, 1)}${userData.nom.slice(0, 1)}`
-                  : `${userData.nom.slice(0, 1)}`}
+                  : `${userData?.nom.slice(0, 1)}`}
               </div>
             )}
 
@@ -210,9 +205,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               <DropdownMenuTrigger
                 render={
                   <button className="hidden md:flex items-center gap-1 cursor-pointer text-sm font-medium text-gray-800">
-                    {userData.prenom
+                    {userData?.prenom
                       ? `${userData.prenom} ${userData.nom.slice(0, 1)}.`
-                      : `${userData.nom.slice(0, 12)}.`}
+                      : `${userData?.nom.slice(0, 12)}.`}
                     <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                   </button>
                 }
