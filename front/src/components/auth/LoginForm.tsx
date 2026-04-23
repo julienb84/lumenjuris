@@ -38,7 +38,9 @@ const LoginForm = ({
   const [submitError, setSubmitError] = useState(false);
   const [submitForgotError, setSubmitForgotError] = useState(false);
   const [serverError, setServerError] = useState(false);
-  const [serverErrorMessage, setServerErrorMessage] = useState("");
+  const [serverErrorMessage, setServerErrorMessage] = useState(
+    "Une erreur est survenue, veuillez réessayer...",
+  );
 
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -77,6 +79,7 @@ const LoginForm = ({
             dataResponse.message ||
               "Une erreur est survenue, veuillez réessayer...",
           );
+          console.error("🛑🛑🛑 ERREUR CONNEXION", dataResponse);
           throw new Error(`BackNode Auth Error : ${loginResponse.status}`);
         } else {
           login(dataResponse.data.role, dataResponse.isVerified, true);
@@ -84,7 +87,6 @@ const LoginForm = ({
         }
       } catch (error) {
         setServerError(true);
-        setServerErrorMessage("Une erreur est survenue, veuillez réessayer...");
         console.error("🛑🛑🛑 ERREUR SERVEUR CONNEXION", error);
       }
     }
@@ -150,7 +152,7 @@ const LoginForm = ({
 
       {serverError && (
         <AlertBanner
-          title="Erreur serveur !"
+          title="Connexion impossible !"
           variant="error"
           detail={serverErrorMessage}
           onClose={() => {
@@ -166,7 +168,7 @@ const LoginForm = ({
             title="Email envoyé !"
             variant="success"
             detail="Si un compte est associé à cette adresse, vous recevrez un lien de réinitialisation dans quelques instants."
-            duration={10000}
+            duration={12000}
             onClose={() => {
               setEmailSent(false);
               setSubmitLoading(false);
