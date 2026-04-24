@@ -308,6 +308,8 @@ export function ParamCompte() {
     setActiveTab(nextTab);
   };
 
+  const handleChangeProfileInfo = () => {};
+
   const confirmationModalContent = getParamConfirmationModalContent({
     activeConfirmationModal,
     onClose: () => setActiveConfirmationModal(null),

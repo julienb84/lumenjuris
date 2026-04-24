@@ -417,14 +417,116 @@ routerUser.put(
 routerUser.post(
   "/two-factor",
   authMiddleware,
-  async (_req: Request, res: Response) => {
-    return res.status(200).json({
-      success: true,
-      message: "La double authentification n'est pas encore disponible.",
-      data: {
-        enabled: false,
-      },
-    });
+  async (req: Request, res: Response) => {
+    try {
+      const idUser = Number(req.idUser);
+
+      const user = await prisma.user.findUnique({
+        where: { idUser },
+        select: { email: true, prenom: true, nom: true },
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Utilisateur introuvable.",
+        });
+      }
+
+      const tokenService = new Token();
+      const result = await tokenService.createTwoFactorCode(idUser);
+
+      if (!result.success || !result.code) {
+        return res.status(500).json({
+          success: false,
+          message: "Impossible de générer le code de vérification.",
+        });
+      }
+
+      const mailer = await new Mailer(user.email).sendTwoFactor(
+        result.code,
+        `${user.prenom ?? ""} ${user.nom ?? ""}`.trim(),
+      );
+
+      return res.status(mailer.success ? 200 : 500).json({
+        success: mailer.success,
+        message: mailer.message,
+        data: { enabled: mailer.success },
+      });
+    } catch (err) {
+      console.error(
+        `Une erreur est survenue dans la route /two-factor : \n ${err}`,
+      );
+      return res.status(500).json({
+        success: false,
+        message: "Une erreur serveur est survenue lors de l'envoi du code.",
+      });
+    }
+  },
+);
+
+routerUser.post(
+  "/two-factor/verify",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const idUser = Number(req.idUser);
+      const { code } = req.body;
+
+      if (!code || typeof code !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Un code de vérification est requis.",
+        });
+      }
+
+      const tokenEntry = await prisma.token.findFirst({
+        where: { token: code, userId: idUser, type: "twoFactor" },
+      });
+
+      if (!tokenEntry) {
+        return res.status(400).json({
+          success: false,
+          message: "Code invalide.",
+        });
+      }
+
+      if (tokenEntry.status === "USED") {
+        return res.status(400).json({
+          success: false,
+          message: "Ce code a déjà été utilisé.",
+        });
+      }
+
+      if (tokenEntry.expiresAt < new Date() || tokenEntry.status === "EXPIRED") {
+        await prisma.token.update({
+          where: { idToken: tokenEntry.idToken },
+          data: { status: "EXPIRED" },
+        });
+        return res.status(400).json({
+          success: false,
+          message: "Ce code a expiré. Veuillez en demander un nouveau.",
+        });
+      }
+
+      await prisma.token.update({
+        where: { idToken: tokenEntry.idToken },
+        data: { status: "USED" },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Code vérifié avec succès.",
+      });
+    } catch (err) {
+      console.error(
+        `Une erreur est survenue dans la route /two-factor/verify : \n ${err}`,
+      );
+      return res.status(500).json({
+        success: false,
+        message: "Une erreur serveur est survenue lors de la vérification du code.",
+      });
+    }
   },
 );
 

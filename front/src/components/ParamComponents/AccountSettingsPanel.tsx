@@ -9,6 +9,8 @@ import { Input } from "../ui/Input";
 import { SettingsField } from "../ui/SettingsField";
 import { SettingsToggleRow } from "../ui/SettingsToggleRow";
 
+import { useState } from "react";
+
 type AccountSettingsPanelProps = {
   profile: AccountProfile;
   password: string;
@@ -45,8 +47,13 @@ export function AccountSettingsPanel({
       ? (provider.googleConnectionPanelMode ?? "google_only")
       : "hidden";
   const shouldShowGooglePanel = googleConnectionPanelMode !== "hidden";
-  const hasAddedPassword =
-    googleConnectionPanelMode === "google_with_password";
+  const hasAddedPassword = googleConnectionPanelMode === "google_with_password";
+
+  // const [firstName, setFirstName] = useState(profile.prenom);
+
+  // const handleChangeProfileInfo = (event: React.FormEvent<HTMLFormElement>) => {
+  //   console.log(event);
+  // };
 
   return (
     <div className="flex flex-1 flex-col">
@@ -73,7 +80,9 @@ export function AccountSettingsPanel({
           <SettingsField label="Nom">
             <Input
               value={profile.nom}
-              onChange={(event) => onProfileFieldChange("nom", event.target.value)}
+              onChange={(event) =>
+                onProfileFieldChange("nom", event.target.value)
+              }
               onBlur={onProfileFieldBlur}
             />
           </SettingsField>
