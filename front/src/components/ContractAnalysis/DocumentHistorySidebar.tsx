@@ -67,8 +67,8 @@ export const DocumentHistorySidebar: React.FC<DocumentHistorySidebarProps> = ({
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {item.fileName}
                         </p>
-                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
-                          <span className="inline-flex items-center gap-1">
+                        <div className="mt-1 flex flex-wrap items-center gap-y-1 text-xs text-gray-500">
+                          <span className="inline-flex items-center gap-1 whitespace-nowrap">
                             <StatusIcon
                               className={`w-3.5 h-3.5 ${
                                 item.status === "analyzed"
@@ -80,22 +80,23 @@ export const DocumentHistorySidebar: React.FC<DocumentHistorySidebarProps> = ({
                               ? "Analysé"
                               : "Importé"}
                           </span>
-                          <span>{item.clausesCount} clause(s)</span>
+                          <HistoryMetaItem>
+                            {formatClauseCount(item.clausesCount)}
+                          </HistoryMetaItem>
                           {item.activePatchCount > 0 && (
-                            <span>{item.activePatchCount} modif.</span>
+                            <HistoryMetaItem>
+                              {formatPatchCount(item.activePatchCount)}
+                            </HistoryMetaItem>
                           )}
                         </div>
                       </div>
                     </div>
-
-                    <div className="mt-2 text-xs text-gray-400">
-                      <span className="whitespace-nowrap">
-                        {formatDate(item.createdAt)}
-                      </span>
-                    </div>
                   </button>
 
-                  <div className="px-3 pb-2 flex justify-end">
+                  <div className="px-3 pb-2 flex items-center justify-between gap-2">
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {formatDate(item.createdAt)}
+                    </span>
                     <button
                       type="button"
                       onClick={(event) => {
@@ -117,6 +118,25 @@ export const DocumentHistorySidebar: React.FC<DocumentHistorySidebarProps> = ({
     </aside>
   );
 };
+
+function HistoryMetaItem({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center whitespace-nowrap">
+      <span className="mx-1.5 text-gray-300" aria-hidden="true">
+        /
+      </span>
+      {children}
+    </span>
+  );
+}
+
+function formatClauseCount(count: number): string {
+  return `${count} clause${count > 1 ? "s" : ""}`;
+}
+
+function formatPatchCount(count: number): string {
+  return `${count} modif.`;
+}
 
 function formatDate(value: string): string {
   const date = new Date(value);
