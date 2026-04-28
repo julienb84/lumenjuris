@@ -10,6 +10,7 @@ export type GoogleConnectionPanelMode =
 export type AccountConfirmationModal =
   | "two_factor"
   | "password_change"
+  | "profile_update"
   | "export_data"
   | "delete_account";
 

@@ -35,6 +35,7 @@ export interface UserData {
     prenom?: string;
     role: "USER" | "ADMIN";
     isVerified: boolean;
+    twoFactorEnabled?: boolean;
   };
   provider: {} | { provider: string; avatarUrl: string | null };
 }

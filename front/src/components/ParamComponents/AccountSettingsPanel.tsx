@@ -35,7 +35,11 @@ type AccountSettingsPanelProps = {
     field: "prenom" | "nom" | "email",
     value: string,
   ) => void;
-  onProfileFieldBlur: () => void;
+  onUpdateProfileClick: () => void;
+  profileUpdateSuccess: boolean;
+  onProfileUpdateSuccessClose: () => void;
+  profileUpdateError: boolean;
+  onProfileUpdateErrorClose: () => void;
   onPasswordChange: (value: string) => void;
   onPasswordBlur: () => void;
   onTwoFactorCheckedChange: (checked: boolean) => void;
@@ -50,7 +54,11 @@ export function AccountSettingsPanel({
   provider,
   isTwoFactorEnabled,
   onProfileFieldChange,
-  onProfileFieldBlur,
+  onUpdateProfileClick,
+  profileUpdateSuccess,
+  onProfileUpdateSuccessClose,
+  profileUpdateError,
+  onProfileUpdateErrorClose,
   onPasswordChange,
   onPasswordBlur,
   onTwoFactorCheckedChange,
@@ -68,10 +76,6 @@ export function AccountSettingsPanel({
   const [successMessage, setSuccessMessage] = useState("");
   const [serverError, setServerError] = useState(false);
   const [serverErrorMessage, setServerErrorMessage] = useState("");
-  const [upddateFirstName, setUpdateFirstName] = useState(profile.prenom);
-  const [updateLastName, setUpdateLastName] = useState(profile.nom);
-  const [updateEmail, setUpdateEmail] = useState(profile.email);
-  const [emailError, setEmailError] = useState("");
 
   // Le panneau Google décide seul de son affichage à partir du provider reçu.
   const googleConnectionPanelMode =
@@ -84,41 +88,6 @@ export function AccountSettingsPanel({
   const passwordErrorTimeout = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
-
-  const handleChangeProfileInfo = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault();
-    try {
-      const updateProfile = await fetch("/api/user", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: updateEmail,
-          nom: updateLastName,
-          prenom: upddateFirstName,
-        }),
-        credentials: "include",
-      });
-
-      const updateResponse = await updateProfile.json();
-      if (!updateProfile.ok || !updateResponse.success) {
-        setServerError(true);
-        setServerErrorMessage(updateResponse.message);
-        throw new Error(`BackNode Auth Error : ${updateResponse.status}`);
-      } else {
-        setSubmitSuccess(true);
-        setSuccessMessage("Votre profile a bien été mis à jour.");
-      }
-    } catch (error) {
-      setServerError(true);
-      setServerErrorMessage(
-        "Une erreur s'est produite, nous n'avons pas pu mettre à jour votre profile...",
-      );
-    }
-  };
 
   const handleSubmitNewPassword = async (
     event: React.FormEvent<HTMLFormElement>,
@@ -195,30 +164,6 @@ export function AccountSettingsPanel({
     }
   };
 
-  const handleChangeLastname = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setUpdateLastName(value);
-  };
-
-  const handleChangeFirstname = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const value = event.target.value.trim();
-    setUpdateFirstName(value);
-  };
-
-  const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setUpdateEmail(value);
-    const emailRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    if (value.length > 0 && !emailRegex.test(value)) {
-      setEmailError("L'adresse email n'est pas valide");
-    } else {
-      setEmailError("");
-    }
-  };
-
   return (
     <div className="flex flex-1 flex-col">
       <div className="space-y-6">
@@ -231,6 +176,25 @@ export function AccountSettingsPanel({
           </p>
         </div>
 
+        {profileUpdateSuccess && (
+          <AlertBanner
+            title="Profil mis à jour !"
+            variant="success"
+            detail="Vos informations personnelles ont bien été enregistrées."
+            duration={7000}
+            onClose={onProfileUpdateSuccessClose}
+          />
+        )}
+        {profileUpdateError && (
+          <AlertBanner
+            title="Echec de la mise à jour !"
+            variant="error"
+            detail="Vos informations personnelles n'ont pu être mises à jour. Veuillez réessayer."
+            duration={7000}
+            onClose={onProfileUpdateErrorClose}
+          />
+        )}
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <SettingsField label="Prénom">
             <Input
@@ -238,7 +202,6 @@ export function AccountSettingsPanel({
               onChange={(event) =>
                 onProfileFieldChange("prenom", event.target.value)
               }
-              onBlur={onProfileFieldBlur}
             />
           </SettingsField>
           <SettingsField label="Nom">
@@ -247,7 +210,6 @@ export function AccountSettingsPanel({
               onChange={(event) =>
                 onProfileFieldChange("nom", event.target.value)
               }
-              onBlur={onProfileFieldBlur}
             />
           </SettingsField>
           <SettingsField label="Email">
@@ -257,149 +219,14 @@ export function AccountSettingsPanel({
               onChange={(event) =>
                 onProfileFieldChange("email", event.target.value)
               }
-              onBlur={onProfileFieldBlur}
             />
           </SettingsField>
-          {/* <SettingsField label="Mot de passe">
-            <Input
-              id={ACCOUNT_PASSWORD_INPUT_ID}
-              type="password"
-              value={password}
-              onChange={(event) => onPasswordChange(event.target.value)}
-              onBlur={onPasswordBlur}
-            />
-          </SettingsField> */}
         </div>
 
         <section>
-          {/* update profile infos */}
-          <Dialog>
-            <DialogTrigger
-              render={
-                <Button variant="outline">Mettre à jour mon profile</Button>
-              }
-            />
-            <DialogContent className="sm:max-w-sm">
-              <form
-                onSubmit={handleChangeProfileInfo}
-                className="flex flex-col gap-4"
-              >
-                <DialogHeader>
-                  <DialogTitle>Informations de profile</DialogTitle>
-                  <DialogDescription>
-                    Vous pouvez mettre à jour vos informations de profile en
-                    modifiant les champs ci-dessous.
-                  </DialogDescription>
-                  {submitError && (
-                    <AlertBanner
-                      title="Vérifiez vos champs !"
-                      variant="error"
-                      detail=""
-                      onClose={() => setSubmitError(false)}
-                    />
-                  )}
-                  {serverError && (
-                    <AlertBanner
-                      title="Connexion impossible !"
-                      variant="error"
-                      detail={serverErrorMessage}
-                      onClose={() => {
-                        setServerError(false);
-                        setSubmitLoading(false);
-                      }}
-                    />
-                  )}
-                  {submitSuccess && (
-                    <AlertBanner
-                      title="Modification réussie !"
-                      variant="success"
-                      detail={successMessage}
-                      duration={6000}
-                      onClose={() => {
-                        setSubmitLoading(false);
-                        setSubmitSuccess(false);
-                      }}
-                    />
-                  )}
-                </DialogHeader>
-
-                <Field>
-                  <FieldLabel
-                    htmlFor="lastname"
-                    className="after:text-red-500 after:content-['*']"
-                  >
-                    Nom
-                  </FieldLabel>
-                  <Input
-                    id="lastname"
-                    type="text"
-                    placeholder="Dupond"
-                    value={updateLastName}
-                    onChange={handleChangeLastname}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="firstname">Prénom</FieldLabel>
-                  <Input
-                    id="firstname"
-                    type="text"
-                    placeholder="Jenny"
-                    value={upddateFirstName}
-                    onChange={handleChangeFirstname}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel
-                    htmlFor="email"
-                    className="after:text-red-500 after:content-['*']"
-                  >
-                    Email
-                  </FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="mail@example.com"
-                    value={updateEmail}
-                    onChange={handleChangeEmail}
-                    className={
-                      emailError &&
-                      "text-destructive border-destructive focus-visible:border-destructive focus-visible:ring-destructive ring-1 ring-destructive"
-                    }
-                  />
-                  <FieldError
-                    errors={emailError ? [{ message: emailError }] : undefined}
-                  ></FieldError>
-                </Field>
-
-                <DialogFooter>
-                  <DialogClose
-                    render={
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setUpdateEmail(profile.email);
-                          setUpdateFirstName(profile.prenom);
-                          setUpdateLastName(profile.nom);
-                        }}
-                      >
-                        Annuler
-                      </Button>
-                    }
-                  />
-                  <Button
-                    type="submit"
-                    className="text-white"
-                    disabled={
-                      submitLoading || emailError.length > 0 ? true : false
-                    }
-                  >
-                    Enregistrer
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button variant="outline" onClick={onUpdateProfileClick}>
+            Mettre à jour mon profile
+          </Button>
         </section>
 
         <SettingsToggleRow
