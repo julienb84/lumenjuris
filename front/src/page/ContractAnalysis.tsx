@@ -93,6 +93,12 @@ type EnterpriseGetData = EnterpriseSettings & {
   selectedIdcc?: ConventionCollectiveOption | null;
 };
 
+const consumedNavigationUploadKeys = new Set<string>();
+
+function getFileUploadKey(file: File): string {
+  return `${file.name}:${file.size}:${file.lastModified}`;
+}
+
 function cleanEnterpriseContextValue(value?: string | null): string | null {
   const cleanedValue = value?.trim();
   return cleanedValue ? cleanedValue : null;
@@ -172,6 +178,7 @@ export default function ContractAnalysis() {
   const [enterpriseContext, setEnterpriseContext] = useState<
     EnterpriseAnalysisContext | undefined
   >(undefined);
+  const documentPreparationRef = useRef<string | null>(null);
 
   const setActiveHistoryId = (historyId: string | null) => {
     currentHistoryIdRef.current = historyId;
@@ -350,6 +357,14 @@ export default function ContractAnalysis() {
 
   // Handlers avec intégration des hooks
   const onFileUpload = async (file: File) => {
+    const preparationKey = `file:${getFileUploadKey(file)}`;
+
+    if (documentPreparationRef.current) {
+      console.warn("Upload ignoré: une préparation est déjà en cours.");
+      return;
+    }
+
+    documentPreparationRef.current = preparationKey;
     const historyId = createContractHistoryId();
 
     try {
@@ -364,6 +379,10 @@ export default function ContractAnalysis() {
     } catch (error) {
       setActiveHistoryId(null);
       console.error("Erreur upload:", error);
+    } finally {
+      if (documentPreparationRef.current === preparationKey) {
+        documentPreparationRef.current = null;
+      }
     }
   };
 
@@ -371,9 +390,14 @@ export default function ContractAnalysis() {
   useEffect(() => {
     const file = (location.state as { file?: File } | null)?.file;
     if (file) {
-      // Efface le state de navigation immédiatement : empêche un re-déclenchement si le
-      // composant est remonté (Mode dev, refresh, retour navigateur, etc.)
-      window.history.replaceState({}, "", window.location.pathname);
+      const navigationUploadKey = `${location.key}:${getFileUploadKey(file)}`;
+
+      if (consumedNavigationUploadKeys.has(navigationUploadKey)) {
+        return;
+      }
+
+      consumedNavigationUploadKeys.add(navigationUploadKey);
+      navigate(".", { replace: true, state: null });
       onFileUpload(file);
     }
     // Tableau vide intentionnel : on veut s'exécuter une seule fois au montage.
@@ -382,6 +406,14 @@ export default function ContractAnalysis() {
   }, []);
 
   const onTextSubmit = async (text: string, fileName: string) => {
+    const preparationKey = `text:${fileName}:${text.length}`;
+
+    if (documentPreparationRef.current) {
+      console.warn("Soumission ignorée: une préparation est déjà en cours.");
+      return;
+    }
+
+    documentPreparationRef.current = preparationKey;
     const historyId = createContractHistoryId();
 
     try {
@@ -396,6 +428,10 @@ export default function ContractAnalysis() {
     } catch (error) {
       setActiveHistoryId(null);
       console.error("Erreur soumission texte:", error);
+    } finally {
+      if (documentPreparationRef.current === preparationKey) {
+        documentPreparationRef.current = null;
+      }
     }
   };
 
