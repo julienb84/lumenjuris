@@ -436,7 +436,9 @@ export function AccountSettingsPanel({
                         className="flex flex-col gap-4"
                       >
                         <DialogHeader>
-                          <DialogTitle>Nouveau mot de passe</DialogTitle>
+                          <DialogTitle>
+                            Définir un nouveau mot de passe
+                          </DialogTitle>
                           <DialogDescription>
                             Choisissez un nouveau mot de passe pour vous
                             connecter à l'application lors de l'utilisation de

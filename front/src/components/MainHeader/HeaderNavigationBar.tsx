@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LogOutIcon,
   MonitorCheck,
+  AlertCircleIcon,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import {
@@ -22,7 +23,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { useAuth } from "../../context/AuthContext";
-import { UserDataProfile } from "../../types/userData";
+import { UserData } from "../../types/userData";
 
 interface HeaderNavBarProps {
   onNavClick?: () => void;
@@ -34,7 +35,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
   const { login, logout } = useAuth();
 
   const [isConnected, setIsConnected] = useState(false);
-  const [userData, setUserData] = useState<UserDataProfile | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [userInfoError, setUserInfoError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -70,12 +71,13 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
           dataResponse.data.profile.isVerified
         ) {
           setIsConnected(true);
-          setUserData(dataResponse.data.profile);
+          setUserData(dataResponse.data);
           setUserAvatarUrl(dataResponse.data.provider.avatarUrl);
           login(
             dataResponse.data.profile.role,
             dataResponse.data.profile.isVerified,
             true,
+            dataResponse.data,
           );
         }
       } catch (error) {
@@ -158,7 +160,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             </Button>
           </Link>
         )}
-        {isConnected && userData?.role === "ADMIN" && (
+        {isConnected && userData?.profile.role === "ADMIN" && (
           <Link to="/sandbox">
             <Button
               variant="ghost"
@@ -174,7 +176,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             </Button>
           </Link>
         )}
-        {isConnected && userData?.role === "ADMIN" && (
+        {isConnected && userData?.profile.role === "ADMIN" && (
           <Link to="/monitoring">
             <Button
               variant="ghost"
@@ -235,7 +237,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             </Button>
           </Link>
         )}
-        {isConnected && userData?.role === "ADMIN" && (
+        {isConnected && userData?.profile.role === "ADMIN" && (
           <Link to="/sandbox">
             <Button
               variant="ghost"
@@ -252,7 +254,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             </Button>
           </Link>
         )}
-        {isConnected && userData?.role === "ADMIN" && (
+        {isConnected && userData?.profile.role === "ADMIN" && (
           <Link to="/monitoring">
             <Button
               variant="ghost"
@@ -273,6 +275,28 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
 
       {isConnected ? (
         <section className="flex items-center gap-3">
+          {!userData?.enterprise && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="absolute top-2 rounded-full w-6 h-6 bg-transparent border border-destructive flex justify-center items-center animate-ping"></div>
+                    <AlertCircleIcon className="size-6 text-destructive" />
+                  </button>
+                }
+              />
+              <DropdownMenuContent className="min-w-28 bg-lumenjuris-sidebar ring-lumenjuris/60 font-medium text-sm px-4 text-gray-400">
+                <p>
+                  Pensez à compléter les informations de votre entreprise dans
+                  :{" "}
+                </p>
+                <Link to="/mon-compte">
+                  <button className="font-semibold text-gray-100">{`Mon compte > Mon entreprise`}</button>
+                </Link>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
             <Bell className="h-5 w-5 text-gray-400" />
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-green-500" />
@@ -285,9 +309,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               ></img>
             ) : (
               <div className="hidden md:flex h-8 w-8 rounded-full bg-lumenjuris items-center justify-center text-white text-xs font-medium">
-                {userData?.prenom
-                  ? `${userData.prenom.slice(0, 1)}${userData.nom.slice(0, 1)}`
-                  : `${userData?.nom.slice(0, 1)}`}
+                {userData?.profile.prenom
+                  ? `${userData.profile.prenom.slice(0, 1)}${userData.profile.nom.slice(0, 1)}`
+                  : `${userData?.profile.nom.slice(0, 1)}`}
               </div>
             )}
 
@@ -296,9 +320,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                 <DropdownMenuTrigger
                   render={
                     <button className="flex md:hidden h-8 w-8 rounded-full bg-lumenjuris justify-center items-center cursor-pointer text-xs font-medium text-white">
-                      {userData?.prenom
-                        ? `${userData.prenom.slice(0, 1)}${userData.nom.slice(0, 1)}`
-                        : `${userData?.nom.slice(0, 1)}`}
+                      {userData?.profile.prenom
+                        ? `${userData.profile.prenom.slice(0, 1)}${userData.profile.nom.slice(0, 1)}`
+                        : `${userData?.profile.nom.slice(0, 1)}`}
                     </button>
                   }
                 />
@@ -306,9 +330,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                 <DropdownMenuTrigger
                   render={
                     <button className="hidden md:flex items-center gap-1 cursor-pointer text-sm font-medium text-gray-800">
-                      {userData?.prenom
-                        ? `${userData.prenom} ${userData.nom.slice(0, 1)}.`
-                        : `${userData?.nom.slice(0, 12)}.`}
+                      {userData?.profile.prenom
+                        ? `${userData.profile.prenom} ${userData.profile.nom.slice(0, 1)}.`
+                        : `${userData?.profile.nom.slice(0, 12)}.`}
                       <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                     </button>
                   }

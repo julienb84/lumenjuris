@@ -1,10 +1,18 @@
 import { createContext, useState, useContext } from "react";
 
+import { UserData } from "../types/userData";
+
 interface AuthContextValue {
   userRole: string | null;
   userVerified: boolean;
   userConnected: boolean;
-  login: (role: string, verified: boolean, status: boolean) => void;
+  userData: UserData | null;
+  login: (
+    role: string,
+    verified: boolean,
+    status: boolean,
+    data: UserData | null,
+  ) => void;
   logout: () => void;
 }
 
@@ -18,11 +26,18 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userVerified, setUserVerified] = useState(false);
   const [userConnected, setUserConnected] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
 
-  const login = (role: string, verified: boolean, status: boolean) => {
+  const login = (
+    role: string,
+    verified: boolean,
+    status: boolean,
+    data: UserData | null,
+  ) => {
     setUserRole(role);
     setUserVerified(verified);
     setUserConnected(status);
+    setUserData(data);
   };
 
   const logout = () => {
@@ -33,7 +48,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ userRole, userVerified, userConnected, login, logout }}
+      value={{ userRole, userVerified, userConnected, userData, login, logout }}
     >
       {children}
     </AuthContext.Provider>

@@ -80,7 +80,8 @@ const LoginForm = ({
       if (!loginResponse.ok || !dataResponse.success) {
         setServerError(true);
         setServerErrorMessage(
-          dataResponse.message || "Une erreur est survenue, veuillez réessayer...",
+          dataResponse.message ||
+            "Une erreur est survenue, veuillez réessayer...",
         );
         console.error("🛑🛑🛑 ERREUR CONNEXION", dataResponse);
         setSubmitLoading(false);
@@ -98,7 +99,12 @@ const LoginForm = ({
         return;
       }
 
-      login(dataResponse.data.role, dataResponse.data.isVerified, true);
+      login(
+        dataResponse.data.role,
+        dataResponse.data.isVerified,
+        true,
+        dataResponse.data,
+      );
       navigate("/dashboard");
     } catch (error) {
       setServerError(true);
@@ -120,7 +126,7 @@ const LoginForm = ({
       throw new Error(payload?.message ?? "Code invalide. Veuillez réessayer.");
     }
 
-    login(pendingLoginData!.role, pendingLoginData!.isVerified, true);
+    login(pendingLoginData!.role, pendingLoginData!.isVerified, true, null);
     navigate("/dashboard");
   };
 
@@ -312,10 +318,7 @@ const LoginForm = ({
                 <FcGoogle className="text-[20px]" />
                 Se connecter avec Google
               </button>
-              <Button
-                variant="ghost"
-                onClick={() => setForgotPassword(true)}
-              >
+              <Button variant="ghost" onClick={() => setForgotPassword(true)}>
                 Mot de passe oublié ?
               </Button>
             </div>
@@ -327,7 +330,9 @@ const LoginForm = ({
         open={twoFactorModalOpen}
         email={twoFactorEmail}
         onVerify={handleTwoFactorVerify}
-        onCancel={() => { void handleTwoFactorCancel(); }}
+        onCancel={() => {
+          void handleTwoFactorCancel();
+        }}
       />
     </div>
   );
