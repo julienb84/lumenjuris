@@ -4,7 +4,7 @@ export type SettingsTab =
   | "account"
   | "enterprise"
   | "preferences"
-  | "abonnements";
+  | "subscription";
 export type ConventionSource = "naf" | "custom";
 export type AuthProvider = "GOOGLE";
 export type GoogleConnectionPanelMode =

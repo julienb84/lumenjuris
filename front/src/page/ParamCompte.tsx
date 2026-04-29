@@ -6,6 +6,7 @@ import { AccountSettingsPanel } from "../components/ParamComponents/AccountSetti
 import { EnterpriseSettingsPanel } from "../components/ParamComponents/EnterpriseSettingsPanel";
 import { ParamLayout } from "../components/ParamComponents/ParamLayout";
 import { PreferenceSettingsPanel } from "../components/ParamComponents/PreferenceSettingsPanel";
+import { SubscriptionSettingsPanel } from "../components/ParamComponents/SubscriptionSettingsPanel";
 import { ConfirmationModal } from "../components/ui/ConfirmationModal";
 import { TwoFactorCodeModal } from "../components/ui/TwoFactorCodeModal";
 import type {
@@ -59,6 +60,7 @@ export function ParamCompte() {
   const accountMeasureRef = useRef<HTMLElement>(null);
   const enterpriseMeasureRef = useRef<HTMLElement>(null);
   const preferenceMeasureRef = useRef<HTMLElement>(null);
+  const subscriptionMeasureRef = useRef<HTMLElement>(null);
 
   const { isConnected: userConnected, userData, fetchUser } = useUserStore();
 
@@ -473,6 +475,8 @@ export function ParamCompte() {
     />
   );
 
+  const subscriptionPanel = <SubscriptionSettingsPanel />;
+
   return !userConnected ? (
     <Navigate to="/inscription" />
   ) : (
@@ -486,15 +490,19 @@ export function ParamCompte() {
         accountMeasureRef={accountMeasureRef}
         enterpriseMeasureRef={enterpriseMeasureRef}
         preferenceMeasureRef={preferenceMeasureRef}
+        subscriptionMeasureRef={subscriptionMeasureRef}
         accountMeasurePanel={accountPanel}
         enterpriseMeasurePanel={enterprisePanel}
         preferenceMeasurePanel={preferencePanel}
+        preferenceSubscriptionPanel={subscriptionPanel}
       >
         {activeTab === "account"
           ? accountPanel
           : activeTab === "enterprise"
             ? enterprisePanel
-            : preferencePanel}
+            : activeTab === "preferences"
+              ? preferencePanel
+              : subscriptionPanel}
       </ParamLayout>
 
       {confirmationModalContent ? (
