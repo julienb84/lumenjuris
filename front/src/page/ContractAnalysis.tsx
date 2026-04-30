@@ -48,7 +48,7 @@ import {
   touchContractHistoryEntry,
 } from "../utils/contractHistory";
 
-import { useAuth } from "../context/AuthContext";
+import { useUserStore } from "../store/userStore";
 
 // ---------------------------------------------------------------------
 // SUPPRIMER LA FONCTION DÉPLACÉE PAR ERREUR (elle existe déjà en utils)
@@ -139,7 +139,7 @@ function mapEnterpriseToAnalysisContext(
 export default function ContractAnalysis() {
   const location = useLocation();
 
-  const { userConnected } = useAuth();
+  const { isConnected: userConnected } = useUserStore();
 
   // États locaux
   const [selectedClause, setSelectedClause] = useState<string | null>(null);
