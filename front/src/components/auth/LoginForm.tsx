@@ -127,7 +127,7 @@ const LoginForm = ({
   };
 
   const handleSubmitGoogle = () => {
-    window.location.href = "http://localhost:3020/auth/google";
+    window.location.href = "/api/google";
   };
 
   const handleSubmitForgotPassword = async (

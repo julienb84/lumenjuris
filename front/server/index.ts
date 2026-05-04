@@ -262,6 +262,10 @@ function handleNodeUserResetPassword(req: Request, res: Response): void {
   relayToNode(req, res, "/user/updatepassword");
 }
 
+function handleNodeGoogle(_req: Request, res: Response): void {
+  res.redirect(`${BACKNODE_URL}/auth/google`);
+}
+
 // Multipart (upload PDF) — stream direct, body non consommé par express.json
 app.post("/extract-pdf-text", handleExtractPdfText);
 
@@ -298,6 +302,7 @@ app.get("/api/enterprise", handleNodeEnterpriseGet);
 app.put("/api/enterprise", handleNodeEnterpriseUpdate);
 app.post("/api/auth/forgotpassword", handleNodeUserForgotPassword);
 app.post("/api/user/resetpassword", handleNodeUserResetPassword);
+app.get("/api/google", handleNodeGoogle);
 
 // ---- Front React : Vite middleware (dev) ou static (prod) ---------------------
 if (IS_PROD) {
