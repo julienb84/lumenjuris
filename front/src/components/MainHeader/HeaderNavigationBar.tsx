@@ -10,6 +10,9 @@ import {
   LogOutIcon,
   MonitorCheck,
   AlertCircleIcon,
+  CreditCardIcon,
+  HandCoinsIcon,
+  HandCoins,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import {
@@ -78,7 +81,19 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
             >
-              <LayoutDashboard className="size-5" />
+              <LayoutDashboard
+                className={
+                  pathname === "/dashboard" ||
+                  pathname === "/generateur" ||
+                  pathname === "/signature" ||
+                  pathname === "/chatjuridique" ||
+                  pathname === "/calculateur" ||
+                  pathname === "/veille" ||
+                  pathname === "/conformite"
+                    ? "size-6"
+                    : "size-5"
+                }
+              />
             </Button>
           </Link>
         )}
@@ -94,7 +109,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
             >
-              <FileCheckIcon className="size-5" />
+              <FileCheckIcon
+                className={pathname === "/analyzer" ? "size-6" : "size-5"}
+              />
             </Button>
           </Link>
         )}
@@ -110,7 +127,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               }
               onClick={onNavClick}
             >
-              <ScatterChartIcon />
+              <ScatterChartIcon
+                className={pathname === "/sandbox" ? "size-6" : "size-5"}
+              />
             </Button>
           </Link>
         )}
@@ -126,7 +145,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               }
               onClick={onNavClick}
             >
-              <MonitorCheck />
+              <MonitorCheck
+                className={pathname === "/monitoring" ? "size-6" : "size-5"}
+              />
             </Button>
           </Link>
         )}
@@ -153,7 +174,19 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
             >
-              <LayoutDashboard />
+              <LayoutDashboard
+                className={
+                  pathname === "/dashboard" ||
+                  pathname === "/generateur" ||
+                  pathname === "/signature" ||
+                  pathname === "/chatjuridique" ||
+                  pathname === "/calculateur" ||
+                  pathname === "/veille" ||
+                  pathname === "/conformite"
+                    ? "size-5"
+                    : ""
+                }
+              />
               Dashboard
             </Button>
           </Link>
@@ -170,7 +203,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
             >
-              <FileCheckIcon />
+              <FileCheckIcon
+                className={pathname === "/analyzer" ? "size-5" : ""}
+              />
               Analyse
             </Button>
           </Link>
@@ -187,7 +222,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               }
               onClick={onNavClick}
             >
-              <ScatterChartIcon />
+              <ScatterChartIcon
+                className={pathname === "/sandbox" ? "size-5" : ""}
+              />
               Sandbox
             </Button>
           </Link>
@@ -204,7 +241,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               }
               onClick={onNavClick}
             >
-              <MonitorCheck />
+              <MonitorCheck
+                className={pathname === "/monitoring" ? "size-5" : ""}
+              />
               Monitoring
             </Button>
           </Link>
@@ -305,22 +344,77 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
           </div>
         </section>
       ) : (
-        <nav>
-          <Link to="/inscription">
-            <Button
-              variant="ghost"
-              size="lg"
-              className={
-                pathname === "/inscription"
-                  ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
-                  : "text-gray-400 hover:bg-lumenjuris-background"
-              }
-              onClick={onNavClick}
-            >
-              <LogInIcon />
-              Se connecter
-            </Button>
-          </Link>
+        <nav className="flex items-center gap-1 pr-2">
+          {isMobile ? (
+            <>
+              <Link to="/souscription">
+                <Button
+                  variant="ghost"
+                  size="icon-lg"
+                  className={
+                    pathname === "/souscription"
+                      ? " text-gray-500 tracking-wide font-semibold hover:cursor-default"
+                      : "text-gray-400 hover:bg-lumenjuris-background"
+                  }
+                >
+                  <HandCoinsIcon
+                    className={pathname === "/souscription" ? "size-6" : ""}
+                  />
+                </Button>
+              </Link>
+              <Link to="/inscription">
+                <Button
+                  variant="ghost"
+                  size="icon-lg"
+                  className={
+                    pathname === "/inscription"
+                      ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
+                      : "text-gray-400 hover:bg-lumenjuris-background"
+                  }
+                >
+                  <LogInIcon
+                    className={pathname === "/inscription" ? "size-6" : ""}
+                  />
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              {" "}
+              <Link to="/souscription">
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={
+                    pathname === "/souscription"
+                      ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
+                      : "text-gray-400 hover:bg-lumenjuris-background"
+                  }
+                >
+                  <HandCoinsIcon
+                    className={pathname === "/souscription" ? "size-5" : ""}
+                  />
+                  Nos abonnements
+                </Button>
+              </Link>
+              <Link to="/inscription">
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className={
+                    pathname === "/inscription"
+                      ? " text-gray-500 tracking-wide font-semibold text-[16px] hover:cursor-default"
+                      : "text-gray-400 hover:bg-lumenjuris-background"
+                  }
+                >
+                  <LogInIcon
+                    className={pathname === "/inscription" ? "size-5" : ""}
+                  />
+                  Se connecter
+                </Button>
+              </Link>
+            </>
+          )}
         </nav>
       )}
     </div>
