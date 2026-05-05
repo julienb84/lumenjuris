@@ -170,7 +170,7 @@ routerUser.post(
         .cookie("authLumenJuris", "", {
           httpOnly: true,
           secure: process.env.ENV === "production",
-          sameSite: "strict",
+          //sameSite: "strict",
           path: "/",
           maxAge: 0,
         })

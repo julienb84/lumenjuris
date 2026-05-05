@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
+import { fetchProxy } from "../utils/fetchProxy";
 
 const CC_DB = {
   "1486":{label:"Syntec — Bureaux d'études, numérique, conseil",short:"Syntec",trialCadre:4,trialNonCadre:2,renewable:true,classifications:["Position 1.1","Position 1.2","Position 2.1","Position 2.2","Position 2.3","Position 3.1","Position 3.2","Position 3.3"],noticeCadre:"3 mois",noticeNonCadre:"1 mois"},
@@ -252,7 +253,7 @@ export function GenerationContract() {
     if (clean.length !== 14 || !/^\d+$/.test(clean)) return;
     setSiretLoading(true); setSiretStatus(null);
     try {
-      const res = await fetch(`https://siret2idcc.fabrique.social.gouv.fr/api/v2/${clean}`);
+      const res = await fetchProxy(`https://siret2idcc.fabrique.social.gouv.fr/api/v2/${clean}`);
       const data = await res.json();
       if (data?.[0]?.conventions?.length) {
         const cv = data[0].conventions[0];
@@ -267,7 +268,7 @@ export function GenerationContract() {
     if (q.length < 3) return;
     setSearchLoading(true);
     try {
-      const res = await fetch(`https://recherche-entreprises.fabrique.social.gouv.fr/api/v1/search?query=${encodeURIComponent(q)}&limit=5`);
+      const res = await fetchProxy(`https://recherche-entreprises.fabrique.social.gouv.fr/api/v1/search?query=${encodeURIComponent(q)}&limit=5`);
       const data = await res.json();
       setSearchResults(data?.entreprises || []); setShowSearch(true);
     } catch { setSearchResults([]); }
@@ -290,7 +291,7 @@ export function GenerationContract() {
     if (!customInput.trim()) return; setGenClause(true);
     try {
       const ctx = `CC: ${cc?.label || "?"}. Statut: ${f.jobStatus}. Poste: ${f.jobTitle}.`;
-      const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, system: CUSTOM_CLAUSE_SYS, messages: [{ role: "user", content: `${ctx}\n\nDemande: ${customInput}` }], tools: [{ type: "web_search_20250305", name: "web_search" }] }) });
+      const res = await fetchProxy("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, system: CUSTOM_CLAUSE_SYS, messages: [{ role: "user", content: `${ctx}\n\nDemande: ${customInput}` }], tools: [{ type: "web_search_20250305", name: "web_search" }] }) });
       const data = await res.json();
       const txt = data.content?.filter(b => b.type === "text").map(b => b.text).join("") || "";
       let parsed; try { parsed = JSON.parse(txt.replace(/```json|```/g, "").trim()); } catch { parsed = { title: "Clause", article: txt, warnings: null, legal_refs: "" }; }
@@ -304,7 +305,7 @@ export function GenerationContract() {
     let custTxt = ""; if (customClauses.length) custTxt = "\n\nCLAUSES PERSONNALISÉES:\n" + customClauses.map(c => `--- ${c.title} ---\n${c.article}`).join("\n\n");
     const prompt = `CDI conforme CC ${cc?.label || "?"} (IDCC ${f.ccIdcc || "?"}).\nENTREPRISE: ${f.companyName||"?"} (${f.companyForm}) SIRET ${f.siret||"?"} — ${f.companyAddress||"?"} — Rep: ${f.companyRep||"?"} (${f.companyRepTitle})\nSALARIÉ: ${f.employeeName||"?"} — ${f.employeeAddress||"?"} — SS: ${f.employeeSS||"?"}\nPOSTE: ${f.jobTitle||"?"} — ${f.jobStatus} — Classif: ${f.jobClassification||"?"} — Lieu: ${f.workLocation||"?"} — Temps: ${f.workTime}\nRÉMUN: Annuel ${f.salary||"?"} — Mensuel ${f.salaryMonthly||"?"}\nDÉBUT: ${f.startDate||"?"}\nCLAUSES:${clTxt||"\nStandards."}${custTxt}\n${f.extraNotes?`INSTRUCTIONS: ${f.extraNotes}`:""}`;
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 4096, system: SYS_PROMPT, messages: [{ role: "user", content: prompt }] }) });
+      const res = await fetchProxy("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 4096, system: SYS_PROMPT, messages: [{ role: "user", content: prompt }] }) });
       const data = await res.json(); setOutput(data.content?.map(b => b.text || "").join("\n") || "Erreur.");
     } catch { setOutput("Erreur de connexion."); } finally { setLoading(false); }
   }, [f, cc, customClauses]);

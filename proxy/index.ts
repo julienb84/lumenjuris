@@ -19,16 +19,21 @@ app.use(
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
       /^https:\/\/.*\.odns\.fr$/,
+      "http://localhost:5173"
     ],
     credentials: true,
   }),
 );
 
+
+
 app.use(express.json({ limit: "1mb" }));
 const IS_PROD = process.env.NODE_ENV === "production";
 const PORT = Number(process.env.PORT || 5173);
-const BACKEND_URL = IS_PROD ?  process.env.BACKEND_URL : "http://localhost:5678";
+const BACKEND_URL = IS_PROD ? process.env.BACKEND_URL : "http://localhost:5678";
 const BACKNODE_URL = IS_PROD ? process.env.BACKNODE_URL : "http://localhost:3020";
+
+
 
 
 
@@ -82,6 +87,8 @@ function relayJsonToPython(
 
 // Relay requêtes vers le serveur Node
 function relayToNode(req: Request, res: Response, targetPath: string): void {
+
+
   fetch(`${BACKNODE_URL}${targetPath}`, {
     method: req.method,
     headers: {
@@ -199,11 +206,11 @@ function handleHuggingFaceGenerate(req: Request, res: Response): void {
   relayJsonToPython(req, res, "/huggingface-generate");
 }
 
-function handleInseeRequest(req: Request, res: Response): void|Response {
-  if(typeof req.params.siren !== "string"){
+function handleInseeRequest(req: Request, res: Response): void | Response {
+  if (typeof req.params.siren !== "string") {
     return res.json({
-      success:false,
-      message : "Bad request, le parsing de du siren n'est pas conforme."
+      success: false,
+      message: "Bad request, le parsing de du siren n'est pas conforme."
     })
   }
   const siren = encodeURIComponent(req.params.siren);
@@ -309,18 +316,20 @@ app.post("/api/user/resetpassword", handleNodeUserResetPassword);
 
 
 // Health pour tester le serveur
-app.get("/health", (req:Request,res:Response)=>{
+app.get("/health", (req: Request, res: Response) => {
   return res.send({
-    status : "OK",
-    port : PORT,
-    urlBackendPython : BACKEND_URL,
-    urlBackendNodejs : BACKNODE_URL
+    status: "OK",
+    port: PORT,
+    urlBackendPython: BACKEND_URL,
+    urlBackendNodejs: BACKNODE_URL
   })
 })
 
+
+
 // Démarrage du serveur
 app.listen(PORT, () => {
-  console.log(`Serveur prod: http://localhost:${PORT}`);
+  console.log(`Serveur proxy running on : http://localhost:${PORT}`);
   console.log(`Backend Python url : ${BACKEND_URL}`)
   console.log(`Backend NodeJs url : ${BACKNODE_URL}`)
 });
