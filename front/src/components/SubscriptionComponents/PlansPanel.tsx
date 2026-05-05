@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "../ui/Button";
 import { cn } from "../../utils/shadcnUtils/cn";
+import { StripePaymentForm } from "./StripePaymentForm";
+
+type BillingInterval = "month" | "year";
 
 type Plan = {
   name: string;
@@ -12,6 +15,7 @@ type Plan = {
   badge?: string;
   features: string[];
   cta: string;
+  contactOnly?: boolean;
 };
 
 const PLANS: Plan[] = [
@@ -53,6 +57,7 @@ const PLANS: Plan[] = [
     monthly: 199,
     yearly: 169,
     cta: "Contacter l'équipe",
+    contactOnly: true,
     features: [
       "Tout ce qui est inclus dans Pro",
       "Multi-utilisateurs & rôles",
@@ -65,11 +70,73 @@ const PLANS: Plan[] = [
   },
 ];
 
+type SelectedPlan = {
+  name: string;
+  price: number;
+  interval: BillingInterval;
+};
+
 export function PlansPanel() {
   const [yearly, setYearly] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  const interval: BillingInterval = yearly ? "year" : "month";
+
+  const handlePlanSelect = (plan: Plan) => {
+    const priceEuros = yearly ? plan.yearly : plan.monthly;
+    setSelectedPlan({
+      name: plan.name,
+      price: priceEuros * 100,
+      interval,
+    });
+  };
+
+  if (paymentSuccess) {
+    return (
+      <div className="mx-auto max-w-6xl rounded-md bg-white px-4 py-6">
+        <div className="flex flex-col items-center rounded-2xl border border-green-200 bg-green-50 px-6 py-16 text-center">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+            <Check className="h-7 w-7 text-green-600" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">
+            Abonnement activé !
+          </h2>
+          <p className="mt-2 max-w-sm text-sm text-gray-500">
+            Votre paiement a été accepté. Vous avez maintenant accès à toutes
+            les fonctionnalités LumenJuris.
+          </p>
+          <Button
+            type="button"
+            className="mt-6 bg-lumenjuris text-white hover:bg-lumenjuris/90"
+            onClick={() => {
+              setPaymentSuccess(false);
+              setSelectedPlan(null);
+            }}
+          >
+            Retour aux offres
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedPlan) {
+    return (
+      <div className="mx-auto max-w-lg rounded-md bg-white px-6 py-6">
+        <StripePaymentForm
+          planName={selectedPlan.name}
+          price={selectedPlan.price}
+          interval={selectedPlan.interval}
+          onBack={() => setSelectedPlan(null)}
+          onSuccess={() => setPaymentSuccess(true)}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-6xl bg-white px-4 py-6 rounded-md">
+    <div className="mx-auto max-w-6xl rounded-md bg-white px-4 py-6">
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -157,6 +224,11 @@ export function PlansPanel() {
               <Button
                 variant={plan.highlight ? "default" : "outline"}
                 className={`mt-6 w-full ${plan.highlight ? "" : "border-lumenjuris/50 hover:bg-gray-100"}`}
+                onClick={() =>
+                  plan.contactOnly
+                    ? (window.location.href = "mailto:contact@lumenjuris.com")
+                    : handlePlanSelect(plan)
+                }
               >
                 {plan.cta}
               </Button>

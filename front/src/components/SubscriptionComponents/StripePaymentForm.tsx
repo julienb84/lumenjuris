@@ -10,9 +10,10 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import { Lock, ArrowLeft } from "lucide-react";
 import { Button } from "../ui/Button";
-import type { BillingInterval } from "./SubscriptionSettingsPanel";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
+
+type BillingInterval = "month" | "year";
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "",
@@ -30,9 +31,6 @@ const CARD_ELEMENT_OPTIONS = {
   },
 };
 
-const PRICE_MONTHLY = 3590;
-const PRICE_ANNUAL = 35900;
-
 function formatPrice(cents: number) {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
@@ -42,12 +40,16 @@ function formatPrice(cents: number) {
 }
 
 type PaymentFormInnerProps = {
+  planName: string;
+  price: number;
   interval: BillingInterval;
   onBack: () => void;
   onSuccess: () => void;
 };
 
 function PaymentFormInner({
+  planName,
+  price,
   interval,
   onBack,
   onSuccess,
@@ -58,11 +60,10 @@ function PaymentFormInner({
   const [error, setError] = useState<string | null>(null);
   const [cardholderName, setCardholderName] = useState("");
 
-  const price = interval === "year" ? PRICE_ANNUAL : PRICE_MONTHLY;
   const priceLabel =
     interval === "year"
-      ? `${formatPrice(PRICE_ANNUAL)} — paiement unique (12 mois)`
-      : `${formatPrice(PRICE_MONTHLY)} / mois`;
+      ? `${formatPrice(price)} — paiement unique (12 mois)`
+      : `${formatPrice(price)} / mois`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,12 +90,8 @@ function PaymentFormInner({
       return;
     }
 
-    console.log(
-      "PaymentMethod created:",
-      paymentMethod.id,
-      "interval:",
-      interval,
-    );
+    // TODO: send paymentMethod.id + interval + planName to backend to create subscription
+    console.log("PaymentMethod created:", paymentMethod.id, "plan:", planName, "interval:", interval);
 
     setIsLoading(false);
     onSuccess();
@@ -107,7 +104,7 @@ function PaymentFormInner({
           variant="ghost"
           type="button"
           onClick={onBack}
-          className=" text-gray-500 hover:text-gray-700"
+          className="text-gray-500 hover:text-gray-700"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
@@ -120,7 +117,7 @@ function PaymentFormInner({
         </h3>
         <div className="mt-2 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
           <div>
-            <p className="text-sm font-medium text-gray-800">Plan Essentiel</p>
+            <p className="text-sm font-medium text-gray-800">{planName}</p>
             <p className="text-xs text-gray-500">
               {interval === "year" ? "Abonnement annuel" : "Abonnement mensuel"}
             </p>
@@ -140,7 +137,7 @@ function PaymentFormInner({
             onChange={(event) => setCardholderName(event.target.value)}
             placeholder="Jean Dupont"
             required
-            className=" text-gray-900 placeholder:text-gray-400"
+            className="text-gray-900 placeholder:text-gray-400"
           />
         </div>
 
@@ -186,11 +183,7 @@ function PaymentFormInner({
       >
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
-            <svg
-              className="h-4 w-4 animate-spin"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
+            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
               <circle
                 className="opacity-25"
                 cx="12"
@@ -221,12 +214,16 @@ function PaymentFormInner({
 }
 
 type StripePaymentFormProps = {
+  planName: string;
+  price: number;
   interval: BillingInterval;
   onBack: () => void;
   onSuccess: () => void;
 };
 
 export function StripePaymentForm({
+  planName,
+  price,
   interval,
   onBack,
   onSuccess,
@@ -234,6 +231,8 @@ export function StripePaymentForm({
   return (
     <Elements stripe={stripePromise}>
       <PaymentFormInner
+        planName={planName}
+        price={price}
         interval={interval}
         onBack={onBack}
         onSuccess={onSuccess}

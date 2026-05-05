@@ -12,14 +12,12 @@ import {
   AlertCircleIcon,
   CreditCardIcon,
   HandCoinsIcon,
-  HandCoins,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "../ui/DropDownMenu";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -77,7 +75,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                 pathname === "/calculateur" ||
                 pathname === "/veille" ||
                 pathname === "/conformite"
-                  ? " text-gray-800 xl:tracking-wide font-semibold xl:text-[16px] hover:cursor-default"
+                  ? " text-gray-800 xl:tracking-wide font-semibold hover:cursor-default"
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
             >
@@ -105,7 +103,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               data-slot="icon"
               className={
                 pathname === "/analyzer"
-                  ? " text-gray-800 xl:tracking-wide font-semibold xl:text-[16px] hover:cursor-default"
+                  ? " text-gray-800 xl:tracking-wide font-semibold hover:cursor-default"
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
             >
@@ -122,7 +120,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               size="icon"
               className={
                 pathname === "/sandbox"
-                  ? " text-gray-800 xl:tracking-wide font-semibold xl:text-[16px] hover:cursor-default"
+                  ? " text-gray-800 xl:tracking-wide font-semibold hover:cursor-default"
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
               onClick={onNavClick}
@@ -140,7 +138,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               size="icon"
               className={
                 pathname === "/monitoring"
-                  ? " text-gray-800 xl:tracking-wide font-semibold xl:text-[16px] hover:cursor-default"
+                  ? " text-gray-800 xl:tracking-wide font-semibold hover:cursor-default"
                   : "text-gray-400 hover:bg-lumenjuris-background transition-all delay-100"
               }
               onClick={onNavClick}
@@ -154,7 +152,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
       </nav>
 
       {/* AFFICHAGE MENU ECRANS LARGE */}
-      <nav className="hidden lg:flex items-center gap-1">
+      <nav className="hidden lg:flex items-center 2xl:gap-1">
         {isConnected && (
           <Link to="/dashboard">
             <Button
@@ -215,6 +213,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
             <Button
               variant="ghost"
               size="lg"
+              data-slot="icon"
               className={
                 pathname === "/sandbox"
                   ? " text-gray-500 xl:tracking-wide font-semibold xl:text-[16px] hover:cursor-default"
@@ -307,9 +306,9 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               ) : (
                 <DropdownMenuTrigger
                   render={
-                    <button className="hidden md:flex items-center gap-1 cursor-pointer text-sm font-medium text-gray-800">
+                    <button className="hidden md:flex items-center gap-1 cursor-pointer text-sm font-medium text-gray-800 line-clamp-1">
                       {userData?.profile.prenom
-                        ? `${userData.profile.prenom} ${userData.profile.nom.slice(0, 1)}.`
+                        ? `${userData.profile.prenom.slice(0, 6)} ${userData.profile.nom.slice(0, 1)}.`
                         : `${userData?.profile.nom.slice(0, 12)}.`}
                       <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                     </button>
@@ -320,24 +319,32 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
               <DropdownMenuContent
                 sideOffset={14}
                 alignOffset={2}
-                className="min-w-28 bg-lumenjuris-sidebar ring-lumenjuris/60 font-medium text-sm px-4"
+                className="min-w-28 bg-lumenjuris-sidebar ring-lumenjuris/60 font-medium text-sm px-4 py-2 flex flex-col items-start gap-2"
               >
                 <button
                   onClick={handleUserLogout}
                   className="cursor-pointer inline-flex justify-center items-center gap-1 py-1 text-gray-400 hover:text-white transition-all delay-100"
                 >
-                  <LogOutIcon size={14} />
+                  <LogOutIcon size={16} />
                   Logout
                 </button>
-                <DropdownMenuSeparator className="bg-gray-400" />
                 <button
                   onClick={() => {
                     navigate("/mon-compte");
                   }}
                   className="cursor-pointer inline-flex justify-center items-center gap-1 py-1 text-gray-400 hover:text-white transition-all delay-100"
                 >
-                  <User size={14} />
+                  <User size={16} />
                   Mon compte
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/souscription");
+                  }}
+                  className="cursor-pointer inline-flex justify-center items-center gap-1 py-1 text-gray-400 hover:text-white transition-all delay-100"
+                >
+                  <HandCoinsIcon size={16} />
+                  Formules
                 </button>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -394,7 +401,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                   <HandCoinsIcon
                     className={pathname === "/souscription" ? "size-5" : ""}
                   />
-                  Nos abonnements
+                  Tarifs
                 </Button>
               </Link>
               <Link to="/inscription">

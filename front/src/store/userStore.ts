@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { UserData } from '../types/userData';
+import { create } from "zustand";
+import { UserData } from "../types/userData";
 
 interface UserState {
   userData: UserData | null;
@@ -19,9 +19,10 @@ export const useUserStore = create<UserState>((set) => ({
 
   fetchUser: async () => {
     try {
-      const response = await fetch('/api/user/get', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/user/get", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       const dataResponse = await response.json();
       if (!dataResponse.success) {
@@ -36,31 +37,47 @@ export const useUserStore = create<UserState>((set) => ({
         });
       }
     } catch (error) {
-      console.error('🛑🛑🛑 ERREUR SERVEUR GET USER', error);
-      set({ userInfoError: 'Un problème est survenu, veuillez vous reconnecter.' });
+      console.error("🛑🛑🛑 ERREUR SERVEUR GET USER", error);
+      set({
+        userInfoError: "Un problème est survenu, veuillez vous reconnecter.",
+      });
     }
   },
 
   logoutUser: async () => {
     try {
-      const response = await fetch('/api/user/auth/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const response = await fetch("/api/user/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       const logoutResponse = await response.json();
       if (logoutResponse.success) {
-        set({ isConnected: false, userData: null, userAvatarUrl: null, userInfoError: null });
+        set({
+          isConnected: false,
+          userData: null,
+          userAvatarUrl: null,
+          userInfoError: null,
+        });
         return true;
       }
       set({ userInfoError: logoutResponse.message });
       return false;
     } catch (error) {
-      set({ userInfoError: "Une erreur s'est produite, vous n'avez pas été déconnecté..." });
+      set({
+        userInfoError:
+          "Une erreur s'est produite, vous n'avez pas été déconnecté...",
+      });
       console.error(error);
       return false;
     }
   },
 
-  reset: () => set({ userData: null, isConnected: false, userAvatarUrl: null, userInfoError: null }),
+  reset: () =>
+    set({
+      userData: null,
+      isConnected: false,
+      userAvatarUrl: null,
+      userInfoError: null,
+    }),
 }));
