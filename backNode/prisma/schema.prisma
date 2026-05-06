@@ -62,6 +62,7 @@ model User {
   preference UserPreference?
   documentCustom DocumentCustom[]
   contractHistory ContractHistory[]
+  chatHistory ChatHistory?
 }
 
 
@@ -160,6 +161,16 @@ model DocumentTemplate {
   idDocument      Int    @id @default(autoincrement())
   type            String
   templateContent String @db.Text
+}
+
+// --- HISTORIQUE CHAT JURIDIQUE ---
+
+model ChatHistory {
+  idChatHistory Int    @id @default(autoincrement())
+  conversations String @db.LongText
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [idUser], onDelete: Cascade)
 }
 
 // --- HISTORIQUE ANALYSES CONTRATS ---

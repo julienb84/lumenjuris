@@ -254,6 +254,10 @@ function handleNodeContractHistory(req: Request, res: Response): void {
   relayToNode(req, res, "/contract-history");
 }
 
+function handleNodeChatHistory(req: Request, res: Response): void {
+  relayToNode(req, res, "/chat-history");
+}
+
 function handleNodeContractHistoryItem(req: Request, res: Response): void {
   const externalId = encodeURIComponent(req.params.externalId);
   relayToNode(req, res, `/contract-history/${externalId}`);
@@ -315,6 +319,8 @@ app.post("/api/contract-history", handleNodeContractHistory);
 app.get("/api/contract-history/:externalId", handleNodeContractHistoryItem);
 app.delete("/api/contract-history/:externalId", handleNodeContractHistoryItem);
 app.patch("/api/contract-history/:externalId/touch", handleNodeContractHistoryTouch);
+app.get("/api/chat-history", handleNodeChatHistory);
+app.put("/api/chat-history", handleNodeChatHistory);
 app.post("/api/auth/forgotpassword", handleNodeUserForgotPassword);
 app.post("/api/user/resetpassword", handleNodeUserResetPassword);
 

@@ -5,20 +5,6 @@ import ReactMarkdown from "react-markdown";
 type Message = { role: "user" | "bot" | "error"; text: string };
 type Conversation = { id: string; title: string; createdAt: string; messages: Message[] };
 
-const LS_KEY = "chatjuridique_conversations";
-
-function loadConversations(): Conversation[] {
-  try {
-    return JSON.parse(localStorage.getItem(LS_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveConversations(convs: Conversation[]) {
-  localStorage.setItem(LS_KEY, JSON.stringify(convs));
-}
-
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const d = Math.floor(diff / 86_400_000);
@@ -28,16 +14,41 @@ function relativeTime(iso: string): string {
 }
 
 export function ChatJuridique() {
-  const [conversations, setConversations] = useState<Conversation[]>(loadConversations);
-  const [activeId, setActiveId] = useState<string | null>(() => loadConversations()[0]?.id ?? null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const loadedRef = useRef(false);
 
   const activeConv = conversations.find((c) => c.id === activeId) ?? null;
 
+  // Chargement initial de l'historique depuis la DB
   useEffect(() => {
-    saveConversations(conversations);
+    fetch("/api/chat-history", { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.conversations)) {
+          setConversations(data.conversations);
+          setActiveId((data.conversations as Conversation[])[0]?.id ?? null);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { loadedRef.current = true; });
+  }, []);
+
+  // Sauvegarde différée en DB à chaque modification (ignorée avant le chargement initial)
+  useEffect(() => {
+    if (!loadedRef.current) return;
+    const t = setTimeout(() => {
+      fetch("/api/chat-history", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ conversations }),
+      }).catch(() => {});
+    }, 800);
+    return () => clearTimeout(t);
   }, [conversations]);
 
   useEffect(() => {
