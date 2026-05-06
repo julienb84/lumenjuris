@@ -40,8 +40,6 @@ app.use(
   }),
 );
 
-app.options("*", cors())
-
 app.use("/", routerGoogleAuth);
 app.use("/llm", routerLlm);
 app.use("/user", routerUser);
