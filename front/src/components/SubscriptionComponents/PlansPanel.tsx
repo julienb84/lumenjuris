@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "../ui/Button";
 import { cn } from "../../utils/shadcnUtils/cn";
-import { StripePaymentForm } from "./StripePaymentForm";
+
 import { useUserStore } from "../../store/userStore";
+import { BillingStripePanel } from "./BillingStripePanel";
 
 type BillingInterval = "month" | "year";
 
@@ -146,7 +147,7 @@ export function PlansPanel() {
   if (selectedPlan) {
     return (
       <div className="mx-auto max-w-lg rounded-md bg-white px-6 py-6">
-        <StripePaymentForm
+        <BillingStripePanel
           planName={selectedPlan.name}
           price={selectedPlan.price}
           interval={selectedPlan.interval}

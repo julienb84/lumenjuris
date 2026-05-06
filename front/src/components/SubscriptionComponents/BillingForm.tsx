@@ -1,22 +1,16 @@
 import { useState } from "react";
 import {
-  Elements,
   CardNumberElement,
   CardExpiryElement,
   CardCvcElement,
   useStripe,
   useElements,
-  PaymentElement,
 } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import { Lock, ArrowLeft } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
-
-type BillingInterval = "month" | "year";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_CLIENT ?? "");
+import { formatPrice } from "../../utils/format/formatPrice";
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -30,13 +24,7 @@ const CARD_ELEMENT_OPTIONS = {
   },
 };
 
-function formatPrice(cents: number) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 2,
-  }).format(cents / 100);
-}
+type BillingInterval = "month" | "year";
 
 type PaymentFormInnerProps = {
   planName: string;
@@ -46,7 +34,7 @@ type PaymentFormInnerProps = {
   onSuccess: () => void;
 };
 
-function PaymentFormInner({
+export function BillingForm({
   planName,
   price,
   interval,
@@ -87,6 +75,19 @@ function PaymentFormInner({
       setError(pmError.message ?? "Une erreur est survenue.");
       setIsLoading(false);
       return;
+    }
+
+    let response;
+    try {
+      // Create the PaymentIntent and obtain clientSecret
+      response = await fetch("api/stripe/payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: planName, amount: price }),
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("STRIPE PayIntent ERROR :", error);
     }
 
     console.log(
@@ -219,55 +220,5 @@ function PaymentFormInner({
         Paiement sécurisé par Stripe
       </p>
     </div>
-  );
-}
-
-type StripePaymentFormProps = {
-  planName: string;
-  price: number;
-  interval: BillingInterval;
-  onBack: () => void;
-  onSuccess: () => void;
-};
-
-export function StripePaymentForm({
-  planName,
-  price,
-  interval,
-  onBack,
-  onSuccess,
-}: StripePaymentFormProps) {
-  if (!import.meta.env.VITE_STRIPE_CLIENT) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={onBack}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Retour
-          </Button>
-        </div>
-        <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
-          Paiement non disponible — clé Stripe manquante (
-          <code>VITE_STRIPE_PUBLISHABLE_KEY</code>).
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <Elements stripe={stripePromise}>
-      <PaymentFormInner
-        planName={planName}
-        price={price}
-        interval={interval}
-        onBack={onBack}
-        onSuccess={onSuccess}
-      />
-    </Elements>
   );
 }
