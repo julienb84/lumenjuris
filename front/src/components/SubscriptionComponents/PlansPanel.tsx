@@ -135,16 +135,10 @@ export function PlansPanel() {
             onClick={() => {
               setPaymentSuccess(false);
               setSelectedPlan(null);
-<<<<<<< HEAD
               navigate("/dashboard");
             }}
           >
             Aller sur mon tableau de bord
-=======
-            }}
-          >
-            Retour aux offres
->>>>>>> main
           </Button>
         </div>
       </div>

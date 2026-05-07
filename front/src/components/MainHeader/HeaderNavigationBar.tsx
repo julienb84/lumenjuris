@@ -10,10 +10,6 @@ import {
   LogOutIcon,
   MonitorCheck,
   AlertCircleIcon,
-<<<<<<< HEAD
-  CreditCardIcon,
-=======
->>>>>>> main
   HandCoinsIcon,
 } from "lucide-react";
 import { Button } from "../ui/Button";

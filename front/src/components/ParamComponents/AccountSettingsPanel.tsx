@@ -24,10 +24,6 @@ import { useState, useRef, useEffect } from "react";
 
 import { fetchProxy } from "../../utils/fetchProxy";
 
-<<<<<<< HEAD
-import { useState, useRef, useEffect } from "react";
-=======
->>>>>>> main
 
 type PasswordDialogMode = "change" | "add" | null;
 
