@@ -12,12 +12,8 @@ import { useUserStore } from "../../store/userStore";
 
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router-dom";
-<<<<<<< HEAD
-=======
-
 
 import { fetchProxy } from "../../utils/fetchProxy";
->>>>>>> main
 
 interface LoginFormProps {
   email: string;
