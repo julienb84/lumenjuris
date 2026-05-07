@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 import { create } from "zustand";
 import { UserData } from "../types/userData";
+=======
+import { create } from 'zustand';
+import { UserData } from '../types/userData';
+import { fetchProxy } from '../utils/fetchProxy';
+
+>>>>>>> main
 
 interface UserState {
   userData: UserData | null;
@@ -19,12 +26,21 @@ export const useUserStore = create<UserState>((set) => ({
 
   fetchUser: async () => {
     try {
+<<<<<<< HEAD
       const response = await fetch("/api/user/get", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
+=======
+      const response = await fetchProxy('/api/user/get', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: "include"
+>>>>>>> main
       });
+      
       const dataResponse = await response.json();
+      console.log("Resultat du get data user", dataResponse)
       if (!dataResponse.success) {
         set({ userInfoError: dataResponse.message });
       } else if (dataResponse.data.profile.isVerified) {
@@ -46,10 +62,17 @@ export const useUserStore = create<UserState>((set) => ({
 
   logoutUser: async () => {
     try {
+<<<<<<< HEAD
       const response = await fetch("/api/user/auth/logout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
+=======
+      const response = await fetchProxy('/api/user/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+>>>>>>> main
       });
       const logoutResponse = await response.json();
       if (logoutResponse.success) {

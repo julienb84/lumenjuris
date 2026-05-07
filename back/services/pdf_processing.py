@@ -505,7 +505,7 @@ Chaque objet du tableau représente une clause et doit avoir deux clés :
 
 
 Voici le texte à analyser :
-""" + text[:20000]
+""" + text
     
     try:
         response = _openai_client.chat.completions.create(
@@ -1231,4 +1231,3 @@ def _judilibre_search(query: str, limit: int = 3) -> List[Dict[str, Any]]:
     except Exception as e:
         logger.warning(f"Judilibre search error: {e}")
     return []
-

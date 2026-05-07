@@ -1,23 +1,15 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { MessageSquare, Send, Download, Clock, Plus, Trash2, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { fetchProxy } from "../../utils/fetchProxy";
+
+
+
+
+
 
 type Message = { role: "user" | "bot" | "error"; text: string };
 type Conversation = { id: string; title: string; createdAt: string; messages: Message[] };
-
-const LS_KEY = "chatjuridique_conversations";
-
-function loadConversations(): Conversation[] {
-  try {
-    return JSON.parse(localStorage.getItem(LS_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveConversations(convs: Conversation[]) {
-  localStorage.setItem(LS_KEY, JSON.stringify(convs));
-}
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -28,16 +20,41 @@ function relativeTime(iso: string): string {
 }
 
 export function ChatJuridique() {
-  const [conversations, setConversations] = useState<Conversation[]>(loadConversations);
-  const [activeId, setActiveId] = useState<string | null>(() => loadConversations()[0]?.id ?? null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const loadedRef = useRef(false);
 
   const activeConv = conversations.find((c) => c.id === activeId) ?? null;
 
+  // Chargement initial de l'historique depuis la DB
   useEffect(() => {
-    saveConversations(conversations);
+    fetchProxy("/api/chat-history", { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.conversations)) {
+          setConversations(data.conversations);
+          setActiveId((data.conversations as Conversation[])[0]?.id ?? null);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { loadedRef.current = true; });
+  }, []);
+
+  // Sauvegarde différée en DB à chaque modification (ignorée avant le chargement initial)
+  useEffect(() => {
+    if (!loadedRef.current) return;
+    const t = setTimeout(() => {
+      fetchProxy("/api/chat-history", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ conversations }),
+      }).catch(() => {});
+    }, 800);
+    return () => clearTimeout(t);
   }, [conversations]);
 
   useEffect(() => {
@@ -101,7 +118,7 @@ export function ChatJuridique() {
     const previousMessages = conversations.find((c) => c.id === convId)?.messages ?? [];
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetchProxy("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

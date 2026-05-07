@@ -10,7 +10,10 @@ import {
   LogOutIcon,
   MonitorCheck,
   AlertCircleIcon,
+<<<<<<< HEAD
   CreditCardIcon,
+=======
+>>>>>>> main
   HandCoinsIcon,
 } from "lucide-react";
 import { Button } from "../ui/Button";
@@ -22,11 +25,16 @@ import {
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import type { MouseEvent } from "react";
 
 import { useUserStore } from "../../store/userStore";
 
+type NavigationClickHandler = (
+  event?: MouseEvent<HTMLElement>,
+) => boolean | void;
+
 interface HeaderNavBarProps {
-  onNavClick?: () => void;
+  onNavClick?: NavigationClickHandler;
 }
 
 const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
@@ -49,9 +57,11 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   const handleUserLogout = async () => {
+    if (onNavClick?.() === false) return;
+
     const success = await logoutUser();
     if (success) navigate("/inscription");
   };
@@ -331,6 +341,7 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
                 </button>
                 <button
                   onClick={() => {
+                    if (onNavClick?.() === false) return;
                     navigate("/mon-compte");
                   }}
                   className="cursor-pointer inline-flex justify-center items-center gap-1 py-1 text-gray-400 hover:text-white transition-all delay-100"

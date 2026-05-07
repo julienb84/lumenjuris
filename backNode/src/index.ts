@@ -8,6 +8,11 @@ import routerGoogleAuth from "./route/authGoogle";
 import routerLlm from "./route/apiLlm";
 import routerUser from "./route/apiUser";
 import routerEnterprise from "./route/apiEnterprise";
+<<<<<<< HEAD
+=======
+import routerContractHistory from "./route/apiContractHistory"
+import routerChatHistory from "./route/apiChatHistory";
+>>>>>>> main
 import routerBilling from "./route/apiBilling";
 import cors from "cors";
 import { seedBootstrapUsers } from "./services/bootstrapUsers";
@@ -17,15 +22,24 @@ import { seedBootstrapUsers } from "./services/bootstrapUsers";
  * Ici sera traité toute les opérations avec la base de données
  */
 
+
+
+const HOST_PROXY: string = process.env.HOST_PROXY
+  || process.env.NODE_ENV == "dev"
+  ? "http://localhost:3000" :
+  "https://proxy.lumenjuris.com";
+
+
+
 const app = express();
 const port = process.env.PORT || 3020;
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3020"],
+    origin: ["http://localhost:5173", "http://localhost:3020", HOST_PROXY],
     credentials: true,
   }),
 );
@@ -34,6 +48,11 @@ app.use("/", routerGoogleAuth);
 app.use("/llm", routerLlm);
 app.use("/user", routerUser);
 app.use("/enterprise", routerEnterprise);
+<<<<<<< HEAD
+=======
+app.use("/contract-history", routerContractHistory);
+app.use("/chat-history", routerChatHistory);
+>>>>>>> main
 app.use("/billing", routerBilling);
 
 app.get("/health", (req: Request, res: Response) => {

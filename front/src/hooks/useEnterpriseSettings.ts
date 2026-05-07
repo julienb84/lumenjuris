@@ -11,6 +11,9 @@ import {
   normalizeEnterpriseSettings,
 } from "../utils/param/paramSettings";
 
+import { fetchProxy } from "../utils/fetchProxy";
+
+
 export function useEnterpriseSettings(
   initialSettings: EnterpriseSettings = createEmptyEnterpriseSettings(),
 ) {
@@ -64,7 +67,7 @@ export function useEnterpriseSettings(
   };
 
   const handleSaveEnterpriseEdit = async () => {
-    const response = await fetch("/api/enterprise", {
+    const response = await fetchProxy("/api/enterprise", {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -158,7 +161,7 @@ export function useEnterpriseSettings(
       setIsEditingEnterprise(true);
       setEnterpriseDraft(cloneEnterpriseSettings(enterpriseSettings));
 
-      const response = await fetch(
+      const response = await fetchProxy(
         `/api/insee/${encodeURIComponent(normalizedLookupSiren)}`,
         {
           credentials: "include",

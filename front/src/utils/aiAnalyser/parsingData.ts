@@ -1,6 +1,3 @@
-
-
-
 import { ClauseRisk } from "../../types";
 
 /**
@@ -51,9 +48,6 @@ export function parseAIResponse(response: string): ClauseRisk[] {
         return [];
     }
 }
-
-
-
 /**
  *  Mappage du type vers la catégorie d'une clause
  */
@@ -77,12 +71,6 @@ function mapTypeToCategory(type: string): 'termination' | 'penalty' | 'responsib
 
     return 'other';
 }
-
-
-
-
-
-
 /**
  * 📊 Calcul du profil de risque
  */
@@ -102,32 +90,4 @@ export function calculateRiskProfile(clauses: ClauseRisk[]): {
     else if (avgRisk >= 2.5 || distribution.high > 0 || distribution.medium > 1) overall = 'medium';
 
     return { overall, distribution };
-}
-
-
-
-
-/**
- * 🏗️ Création de chunks intelligents 
- * @param { string } content - Le text brut du contrat
- * @param { number } chunkSize - La taille de chaque chunk
- * @return { string[] } - Un array avec le contrat divisé en chunk
- */
-export function createSmartChunks(content: string, chunkSize: number): string[] {
-    const chunks: string[] = [];
-    const paragraphs = content.split(/\n\s*\n/);
-    let currentChunk = '';
-
-    for (const paragraph of paragraphs) {
-        if (currentChunk.length + paragraph.length > chunkSize && currentChunk.length > 0) {
-            chunks.push(currentChunk.trim());
-            currentChunk = '';
-        }
-        currentChunk += (currentChunk ? '\n\n' : '') + paragraph;
-    }
-
-    if (currentChunk.trim()) chunks.push(currentChunk.trim());
-
-    console.log(`📊 Document divisé en ${chunks.length} chunks intelligents`);
-    return chunks;
 }

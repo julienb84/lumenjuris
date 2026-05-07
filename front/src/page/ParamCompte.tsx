@@ -25,6 +25,8 @@ import {
 } from "../utils/param/paramSettings";
 
 import { useUserStore } from "../store/userStore";
+import { fetchProxy } from "../utils/fetchProxy";
+
 
 const EMPTY_ACCOUNT_PROFILE: AccountProfile = {
   prenom: "",
@@ -120,7 +122,7 @@ export function ParamCompte() {
 
     const loadPreferences = async () => {
       try {
-        const preferenceResponse = await fetch("/api/user/preferences", {
+        const preferenceResponse = await fetchProxy("/api/user/preferences", {
           credentials: "include",
         });
         const preferencePayload = (await preferenceResponse
@@ -223,7 +225,7 @@ export function ParamCompte() {
       return;
     }
 
-    const response = await fetch("/api/user", {
+    const response = await fetchProxy("/api/user", {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -272,7 +274,7 @@ export function ParamCompte() {
   };
 
   const handleTwoFactorCodeVerify = async (code: string) => {
-    const response = await fetch("/api/user/two-factor/verify", {
+    const response = await fetchProxy("/api/user/two-factor/verify", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -296,7 +298,7 @@ export function ParamCompte() {
       return;
     } else if (!checked) {
       try {
-        const response = await fetch("/api/user", {
+        const response = await fetchProxy("/api/user", {
           method: "PUT",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -316,7 +318,7 @@ export function ParamCompte() {
     const previousValue = isDyslexicModeEnabled;
     setIsDyslexicModeEnabled(checked);
 
-    void fetch("/api/user/preferences", {
+    void fetchProxy("/api/user/preferences", {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -375,7 +377,7 @@ export function ParamCompte() {
     activeConfirmationModal,
     onClose: () => setActiveConfirmationModal(null),
     onTwoFactorConfirm: () => {
-      void fetch("/api/user/two-factor", {
+      void fetchProxy("/api/user/two-factor", {
         method: "POST",
         credentials: "include",
       })
@@ -415,7 +417,7 @@ export function ParamCompte() {
     },
 
     onExportDataConfirm: () => {
-      void fetch("/api/user/export-data", {
+      void fetchProxy("/api/user/export-data", {
         method: "POST",
         credentials: "include",
       }).catch((error) => {
@@ -424,7 +426,7 @@ export function ParamCompte() {
     },
 
     onDeleteAccountConfirm: () => {
-      void fetch("/api/user/account", {
+      void fetchProxy("/api/user/account", {
         method: "DELETE",
         credentials: "include",
       }).catch((error) => {
