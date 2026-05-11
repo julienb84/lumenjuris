@@ -298,6 +298,14 @@ function handleBillingPaymentIntent(req: Request, res: Response): void {
   relayToNode(req, res, "/billing/payment-intent");
 }
 
+function handleBillingPlans(req: Request, res: Response): void {
+  relayToNode(req, res, "/billing/plans");
+}
+
+function handleBillingSubscription(req: Request, res: Response): void {
+  relayToNode(req, res, "/billing/subscription");
+}
+
 // Multipart (upload PDF) — stream direct, body non consommé par express.json
 app.post("/extract-pdf-text", handleExtractPdfText);
 
@@ -347,6 +355,9 @@ app.post("/api/user/resetpassword", handleNodeUserResetPassword);
 app.get("/api/google", handleNodeGoogle);
 app.post("/api/billing/customer", handleBillingCustomer);
 app.post("/api/billing/payment-intent", handleBillingPaymentIntent);
+app.get("/api/billing/plans", handleBillingPlans);
+app.post("/api/billing/subscription", handleBillingSubscription);
+app.get("/api/billing/subscription", handleBillingSubscription);
 
 // Health pour tester le serveur
 app.get("/health", (req: Request, res: Response) => {

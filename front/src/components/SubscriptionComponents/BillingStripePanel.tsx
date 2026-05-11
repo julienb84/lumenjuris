@@ -14,7 +14,7 @@ type BillingStripePanelProps = {
   price: number;
   interval: BillingInterval;
   onBack: () => void;
-  onSuccess: () => void;
+  onSuccess: (planName: string, interval: BillingInterval, price: number) => void;
 };
 
 export function BillingStripePanel({

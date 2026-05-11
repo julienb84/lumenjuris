@@ -153,7 +153,7 @@ export function PlansPanel() {
           price={selectedPlan.price}
           interval={selectedPlan.interval}
           onBack={() => setSelectedPlan(null)}
-          onSuccess={() => setPaymentSuccess(true)}
+          onSuccess={() => { setPaymentSuccess(true); }}
         />
       </div>
     );

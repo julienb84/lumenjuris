@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreditCard } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
+import { fetchProxy } from "../../utils/fetchProxy";
 
 type SubscriptionStatus = "ACTIVE" | "CANCELLED" | "EXPIRED" | "PENDING";
 export type BillingInterval = "month" | "year";
@@ -22,12 +24,6 @@ export type CreditsData = {
   totalAnalyse: number;
   totalSignature: number;
   totalGenerationDoc: number;
-};
-
-type SubscriptionSettingsPanelProps = {
-  subscription: SubscriptionData | null;
-  credits: CreditsData | null;
-  onManageSubscriptionClick: () => void;
 };
 
 const STATUS_LABEL: Record<SubscriptionStatus, string> = {
@@ -84,20 +80,27 @@ function CreditBar({
   );
 }
 
-const MOCK_CREDITS: CreditsData = {
-  creditAnalyse: 7,
-  creditSignature: 1,
-  creditGenerationDoc: 2,
-  totalAnalyse: 10,
-  totalSignature: 5,
-  totalGenerationDoc: 3,
-};
-
-export function SubscriptionSettingsPanel(
-  _props: Partial<SubscriptionSettingsPanelProps> = {},
-) {
-  const { subscription = null, credits = MOCK_CREDITS } = _props;
+export function SubscriptionSettingsPanel() {
   const navigate = useNavigate();
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [credits, setCredits] = useState<CreditsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProxy("/api/billing/subscription", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setSubscription(data.data.subscription ?? null);
+          setCredits(data.data.credits ?? null);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   const isActive = subscription?.status === "ACTIVE";
   const isAnnual = subscription?.interval === "year";
@@ -107,6 +110,20 @@ export function SubscriptionSettingsPanel(
     if (!isActive) return "Date de fin";
     return isAnnual ? "Accès valable jusqu'au" : "Prochain prélèvement";
   })();
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">Abonnement</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Gérez votre formule d'abonnement LumenJuris.
+          </p>
+        </div>
+        <div className="h-24 animate-pulse rounded-2xl bg-gray-100" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -211,14 +228,6 @@ export function SubscriptionSettingsPanel(
             onClick={() => navigate("/souscription")}
           >
             Changer d'offre
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="hover:bg-gray-100"
-            onClick={_props.onManageSubscriptionClick ?? (() => {})}
-          >
-            Gérer mon abonnement
           </Button>
         </div>
       )}

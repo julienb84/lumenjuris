@@ -3,6 +3,7 @@ import type { Request, Response, Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { StripeLumenJuris } from "../../billing/stripe.service";
 import { prisma } from "../../prisma/singletonPrisma";
+import { SubscriptionService } from "../services/classSubscription";
 
 const routerBilling: Router = express.Router();
 
@@ -93,6 +94,59 @@ routerBilling.post(
     return res
       .status(200)
       .json({ success: true, clientSecret: result.clientSecret });
+  },
+);
+
+// Retourne tous les plans disponibles
+routerBilling.get("/plans", async (_req: Request, res: Response) => {
+  try {
+    const plans = await prisma.plan.findMany({
+      orderBy: { price: "asc" },
+    });
+    return res.status(200).json({ success: true, plans });
+  } catch (err) {
+    console.error("GET /billing/plans error:", err);
+    return res.status(500).json({ success: false, message: "Erreur serveur." });
+  }
+});
+
+// Enregistre un abonnement en BDD après confirmation du paiement Stripe
+routerBilling.post(
+  "/subscription",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const idUser = Number(req.idUser);
+    const { planName, interval, amount, stripePaymentIntentId } = req.body;
+
+    if (!planName || !interval || typeof amount !== "number") {
+      return res.status(400).json({
+        success: false,
+        message: "Paramètres manquants : planName, interval, amount requis.",
+      });
+    }
+
+    const result = await new SubscriptionService().createOrUpdate(
+      idUser,
+      planName,
+      interval,
+      amount,
+      stripePaymentIntentId,
+    );
+
+    return res.status(result.success ? 201 : 400).json(result);
+  },
+);
+
+// Retourne l'abonnement courant de l'utilisateur connecté
+routerBilling.get(
+  "/subscription",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const idUser = Number(req.idUser);
+
+    const result = await new SubscriptionService().get(idUser);
+
+    return res.status(result.success ? 200 : 500).json(result);
   },
 );
 

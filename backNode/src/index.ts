@@ -13,6 +13,7 @@ import routerChatHistory from "./route/apiChatHistory";
 import routerBilling from "./route/apiBilling";
 import cors from "cors";
 import { seedBootstrapUsers } from "./services/bootstrapUsers";
+import { seedPlans } from "./services/planSeeder";
 
 /**
  * Préparation du serveur nodejs/express pour ce backend
@@ -78,6 +79,11 @@ app.listen(port, async () => {
       "Erreur lors de l'initialisation des utilisateurs de bootstrap:",
       err,
     );
+  }
+  try {
+    await seedPlans();
+  } catch (err) {
+    console.error("Erreur lors du seeding des plans:", err);
   }
   //await sandbox()
 });

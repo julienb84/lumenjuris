@@ -11,9 +11,9 @@ import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { formatPrice } from "../../utils/format/formatPrice";
-import { fetchProxy } from "../../utils/fetchProxy";
 
-const urlProxy: string = import.meta.env.VITE_URL_PROXY;
+const PROXY_URL: string =
+  import.meta.env.VITE_URL_PROXY || "http://localhost:3000";
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -34,11 +34,15 @@ type BillingFormProps = {
   price: number;
   interval: BillingInterval;
   onBack: () => void;
-  onSuccess: () => void;
+  onSuccess: (
+    planName: string,
+    interval: BillingInterval,
+    price: number,
+  ) => void;
 };
 
 async function ensureStripeCustomer(): Promise<string | null> {
-  const res = await fetch(`${urlProxy}/api/billing/customer`, {
+  const res = await fetch(`${PROXY_URL}/api/billing/customer`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -49,7 +53,7 @@ async function ensureStripeCustomer(): Promise<string | null> {
 }
 
 async function createPaymentIntent(amount: number): Promise<string | null> {
-  const res = await fetch("/api/billing/payment-intent", {
+  const res = await fetch(`${PROXY_URL}/api/billing/payment-intent`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -58,6 +62,22 @@ async function createPaymentIntent(amount: number): Promise<string | null> {
   const data = await res.json();
   if (!data.success || !data.clientSecret) return null;
   return data.clientSecret as string;
+}
+
+async function saveSubscription(
+  planName: string,
+  interval: string,
+  amount: number,
+  stripePaymentIntentId: string,
+): Promise<void> {
+  await fetch(`${PROXY_URL}/api/billing/subscription`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ planName, interval, amount, stripePaymentIntentId }),
+  }).catch((err) =>
+    console.error("Erreur lors de l'enregistrement de l'abonnement:", err),
+  );
 }
 
 export function BillingForm({
@@ -73,9 +93,11 @@ export function BillingForm({
   const [error, setError] = useState<string | null>(null);
   const [cardholderName, setCardholderName] = useState("");
 
+  const annualPrice = price * 12;
+
   const priceLabel =
     interval === "year"
-      ? `${formatPrice(price)} — paiement unique (12 mois)`
+      ? `${formatPrice(annualPrice)} — paiement unique`
       : `${formatPrice(price)} / mois`;
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -100,7 +122,12 @@ export function BillingForm({
     }
 
     // 2. Créer le PaymentIntent côté serveur
-    const clientSecret = await createPaymentIntent(price);
+    let clientSecret;
+    if (interval === "year") {
+      clientSecret = await createPaymentIntent(annualPrice);
+    } else {
+      clientSecret = await createPaymentIntent(price);
+    }
     if (!clientSecret) {
       setError("Impossible d'initialiser le paiement. Réessayez.");
       setIsLoading(false);
@@ -124,8 +151,19 @@ export function BillingForm({
       return;
     }
 
+    // 4. Sauvegarder l'abonnement en BDD après que le paiement ait été accepté)
+    const paymentIntentId = clientSecret.split("_secret_")[0];
+    if (interval === "year") {
+      await saveSubscription(planName, interval, annualPrice, paymentIntentId);
+    } else {
+      await saveSubscription(planName, interval, price, paymentIntentId);
+    }
     setIsLoading(false);
-    onSuccess();
+    if (interval === "year") {
+      onSuccess(planName, interval, annualPrice);
+    } else {
+      onSuccess(planName, interval, price);
+    }
   };
 
   return (
@@ -228,6 +266,8 @@ export function BillingForm({
               </svg>
               Traitement…
             </span>
+          ) : interval === "year" ? (
+            `Payer ${formatPrice(annualPrice)}`
           ) : (
             `Payer ${formatPrice(price)}`
           )}
