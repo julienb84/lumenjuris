@@ -13,7 +13,7 @@ function buildInvoiceNumber(idFacture: number, date: Date): string {
   return `LJ-${yyyymmdd}-${String(idFacture).padStart(4, "0")}`;
 }
 
-export class SubscriptionService {
+export class Subscription {
   async createOrUpdate(
     userId: number,
     planName: string,

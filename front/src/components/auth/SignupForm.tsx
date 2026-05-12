@@ -456,7 +456,7 @@ const SignupForm = ({
 
           <div className="w-full h-px bg-border"></div>
 
-          <div className="grid gap-2">
+          <div className="grid gap-3">
             <Button
               className="text-background border border-lumenjuris"
               disabled={
@@ -474,13 +474,18 @@ const SignupForm = ({
               <PenBoxIcon />
               S'inscrire
             </Button>
+            <div className="flex items-center gap-3">
+              <div className="w-full h-px bg-gray-300"></div>
+              <span className="text-gray-400">OU</span>
+              <div className="w-full h-px bg-gray-300"></div>
+            </div>
             <button
               className="w-full h-10 border border-lumenjuris text-sm font-medium inline-flex justify-center items-center gap-2 rounded-md text-lumenjuris hover:bg-lumenjuris-background"
               type="button"
               onClick={handleSubmitGoogle}
             >
               <FcGoogle className="text-[20px]" />
-              Se connecter avec Google
+              S'inscrire avec Google
             </button>
           </div>
         </section>

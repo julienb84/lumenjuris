@@ -3,7 +3,7 @@ import type { Request, Response, Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { StripeLumenJuris } from "../../billing/stripe.service";
 import { prisma } from "../../prisma/singletonPrisma";
-import { SubscriptionService } from "../services/classSubscription";
+import { Subscription } from "../services/classSubscription";
 
 const routerBilling: Router = express.Router();
 
@@ -125,7 +125,7 @@ routerBilling.post(
       });
     }
 
-    const result = await new SubscriptionService().createOrUpdate(
+    const result = await new Subscription().createOrUpdate(
       idUser,
       planName,
       interval,
@@ -137,14 +137,13 @@ routerBilling.post(
   },
 );
 
-// Retourne l'abonnement courant de l'utilisateur connecté
 routerBilling.get(
   "/subscription",
   authMiddleware,
   async (req: Request, res: Response) => {
     const idUser = Number(req.idUser);
 
-    const result = await new SubscriptionService().get(idUser);
+    const result = await new Subscription().get(idUser);
 
     return res.status(result.success ? 200 : 500).json(result);
   },
