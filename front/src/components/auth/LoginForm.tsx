@@ -26,6 +26,9 @@ interface LoginFormProps {
   setEmailSent: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+const PROXY_URL: string =
+  import.meta.env.VITE_URL_PROXY || "http://localhost:3000";
+
 const LoginForm = ({
   email,
   setEmail,
@@ -134,8 +137,9 @@ const LoginForm = ({
     }).catch(() => null);
   };
 
+  // Connexion via Google
   const handleSubmitGoogle = () => {
-    window.location.href = "/api/google";
+    window.location.href = `${PROXY_URL}/api/google`;
   };
 
   const handleSubmitForgotPassword = async (

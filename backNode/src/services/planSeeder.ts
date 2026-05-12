@@ -11,6 +11,14 @@ type PlanSeed = {
 
 const PLANS_SEED: PlanSeed[] = [
   {
+    name: "Freemium",
+    price: 0,
+    interval: "month",
+    creditAnalyse: 100,
+    creditSignature: 20,
+    creditGenerationDoc: 30,
+  },
+  {
     name: "Starter",
     price: 2900,
     interval: "month",

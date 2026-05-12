@@ -33,6 +33,9 @@ interface SignupFormProps {
   setAcceptCgu: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+const PROXY_URL: string =
+  import.meta.env.VITE_URL_PROXY || "http://localhost:3000";
+
 const SignupForm = ({
   lastName,
   setLastName,
@@ -138,8 +141,9 @@ const SignupForm = ({
     }
   };
 
+  // Inscription via Google
   const handleSubmitGoogle = () => {
-    window.location.href = "/api/google";
+    window.location.href = `${PROXY_URL}/api/google`;
   };
 
   const handleChangeLastname = (event: React.ChangeEvent<HTMLInputElement>) => {

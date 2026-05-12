@@ -91,14 +91,7 @@ export function App() {
         <Route path="/verify-account" element={<VerifyAccount />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route
-          path="/souscription"
-          element={
-            <RequireAuth>
-              <Subscription />
-            </RequireAuth>
-          }
-        />
+        <Route path="/souscription" element={<Subscription />} />
       </Routes>
     </>
   );

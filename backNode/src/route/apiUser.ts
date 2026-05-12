@@ -8,6 +8,7 @@ import { prisma } from "../../prisma/singletonPrisma";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { Google } from "../services/classGoogle";
 import { Enterprise } from "../services/classEnterprise";
+import { Subscription } from "../services/classSubscription";
 //import { TokenState } from "../../prisma/generated/enums"
 
 const routerUser: Router = express.Router();
@@ -145,6 +146,9 @@ routerUser.get(
 
       // Auth cookie
       createCookieAuth(idUser, updatedUser.role, res);
+
+      // Activation freemium plan
+      new Subscription().activateFreemium(idUser).catch(console.error);
 
       return res.redirect(`${process.env.HOST_FRONT}/dashboard?verified=true`);
     } catch (err) {

@@ -109,7 +109,11 @@ export function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {
     y = 110;
     const rightCol = left + pageWidth / 2;
 
-    doc.fillColor(GRAY_MID).fontSize(8).font("Helvetica").text("FACTURER À", rightCol, y);
+    doc
+      .fillColor(GRAY_MID)
+      .fontSize(8)
+      .font("Helvetica")
+      .text("FACTURER À", rightCol, y);
 
     doc
       .fillColor(GRAY_DARK)
@@ -125,7 +129,12 @@ export function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {
 
     // ── Divider ───────────────────────────────────────────────
     y = 175;
-    doc.moveTo(left, y).lineTo(left + pageWidth, y).strokeColor(GRAY_LIGHT).lineWidth(1).stroke();
+    doc
+      .moveTo(left, y)
+      .lineTo(left + pageWidth, y)
+      .strokeColor(GRAY_LIGHT)
+      .lineWidth(1)
+      .stroke();
 
     // ── Table header ─────────────────────────────────────────
     y = 190;
@@ -146,17 +155,28 @@ export function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {
 
     // ── Table row ─────────────────────────────────────────────
     y += 22;
-    doc.rect(left, y, pageWidth, 30).strokeColor(GRAY_LIGHT).lineWidth(0.5).stroke();
+    doc
+      .rect(left, y, pageWidth, 30)
+      .strokeColor(GRAY_LIGHT)
+      .lineWidth(0.5)
+      .stroke();
 
     const rowY = y + 10;
     doc.fillColor(GRAY_DARK).fontSize(10).font("Helvetica-Bold");
-    doc.text(`Plan ${data.planName} — ${intervalLabel(data.interval)}`, colDesc + 8, rowY);
+    doc.text(
+      `Plan ${data.planName} — ${intervalLabel(data.interval)}`,
+      colDesc + 8,
+      rowY,
+    );
 
     doc.font("Helvetica").fontSize(10).fillColor(GRAY_DARK);
     doc.text("1", colQty, rowY);
     doc.text(formatEur(htEuros), colHT, rowY);
     doc.text(formatEur(tvaEuros), colTVA, rowY);
-    doc.text(formatEur(ttcEuros), colTTC - 8, rowY, { align: "right", width: 50 });
+    doc.text(formatEur(ttcEuros), colTTC - 8, rowY, {
+      align: "right",
+      width: 50,
+    });
 
     // ── Tax summary ───────────────────────────────────────────
     y += 30 + 20;
