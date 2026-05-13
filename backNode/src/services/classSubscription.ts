@@ -207,6 +207,17 @@ export class Subscription {
           creditGenerationDoc: plan.creditGenerationDoc,
         },
       });
+
+      const user = await prisma.user.findUnique({
+        where: { idUser: userId },
+        select: { email: true, prenom: true },
+      });
+
+      if (user) {
+        new Mailer(user.email)
+          .sendWelcomeFreemium(user.prenom ?? undefined)
+          .catch(console.error);
+      }
     } catch (error) {
       console.error("activateFreemium error:", error);
     }

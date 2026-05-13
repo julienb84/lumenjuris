@@ -3,6 +3,7 @@ import { templateVerifyAccount } from "./template/verifyAccount";
 import { templateResetPassword } from "./template/resetPassword";
 import { templateTwoFactor } from "./template/twoFactor";
 import { templateInvoiceEmail } from "./template/invoiceEmail";
+import { templateWelcomeFreemium } from "./template/welcomeFreemium";
 import { generateInvoicePDF, type InvoiceData } from "../pdf/invoicePDF";
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -210,6 +211,26 @@ export class Mailer {
         success: true,
         message: `Un code de vérification a été envoyé à ${this.email}. Il est valide 15 minutes.`,
       };
+    } catch (err) {
+      return this.errorCatching(err);
+    }
+  }
+
+  async sendWelcomeFreemium(username?: string) {
+    try {
+      const html = this.createHtmlFullContent(templateWelcomeFreemium(username));
+      const mailOptions = this.createOption(
+        html,
+        "Bienvenue sur Lumen Juris — votre formule Freemium est activée",
+      );
+      const sending = await transporter.sendMail(mailOptions);
+
+      if (!sending.messageId) {
+        throw new Error(
+          `Echec lors de l'envoi du mail de bienvenue, messageId indisponible.\n ${sending}`,
+        );
+      }
+      return { success: true };
     } catch (err) {
       return this.errorCatching(err);
     }
