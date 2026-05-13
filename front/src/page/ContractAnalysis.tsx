@@ -183,6 +183,7 @@ export default function ContractAnalysis() {
     new Set(),
   );
   const [showMarketAnalysis, setShowMarketAnalysis] = useState(false);
+  const [analyseCredit, setAnalyseCredit] = useState<number | null>(null);
   const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
   const currentHistoryIdRef = useRef<string | null>(null);
   const [historyItems, setHistoryItems] = useState<ContractHistoryItem[]>([]);
@@ -250,6 +251,22 @@ export default function ContractAnalysis() {
     return () => {
       abortController.abort();
     };
+  }, []);
+
+  useEffect(() => {
+    fetchProxy("/api/billing/subscription", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.credits) {
+          setAnalyseCredit(data.data.credits.creditAnalyse ?? null);
+        } else {
+          setAnalyseCredit(null);
+        }
+      })
+      .catch(() => setAnalyseCredit(null));
   }, []);
 
   // Store pour les recommandations appliquées
@@ -759,6 +776,7 @@ export default function ContractAnalysis() {
   const onStandardAnalysis = () => {
     const analysisHistoryId = currentHistoryIdRef.current;
     if (!analysisHistoryId || !contract) return;
+    if (analyseCredit !== null && analyseCredit < 100) return;
 
     if (!temporaryHistoryEntriesRef.current[analysisHistoryId]) {
       rememberTemporaryContract(analysisHistoryId, contract);
@@ -772,6 +790,7 @@ export default function ContractAnalysis() {
   const onContextualAnalysis = (context: AnalysisContext) => {
     const analysisHistoryId = currentHistoryIdRef.current;
     if (!analysisHistoryId || !contract) return;
+    if (analyseCredit !== null && analyseCredit < 100) return;
 
     if (!temporaryHistoryEntriesRef.current[analysisHistoryId]) {
       rememberTemporaryContract(analysisHistoryId, contract);
@@ -1007,6 +1026,7 @@ export default function ContractAnalysis() {
                     onTextSubmit={onTextSubmit}
                     isProcessing={displayedIsProcessing}
                     processingPhase={displayedProcessingPhase}
+                    analyseCredit={analyseCredit}
                   />
                 </div>
               </div>
