@@ -10,9 +10,7 @@ import {
 import MainHeader from "../components/MainHeader/MainHeader";
 
 // ===> ACTION 3 : CORRIGER L'IMPORT ICI
-import {
-  EnhancedClauseDetail,
-} from "../components/ContractAnalysis/EnhancedClauseDetail/EnhancedClauseDetail";
+import { EnhancedClauseDetail } from "../components/ContractAnalysis/EnhancedClauseDetail/EnhancedClauseDetail";
 import { clearEnhancedClauseCaches } from "../components/ContractAnalysis/EnhancedClauseDetail/enhancedClauseCaches";
 import { ActionButtons } from "../components/ContractAnalysis/ActionButtons";
 import { ContextualAnalysisForm } from "../components/ContractAnalysis/ContextualAnalysisForm";
@@ -190,7 +188,9 @@ export default function ContractAnalysis() {
   const [historyItems, setHistoryItems] = useState<ContractHistoryItem[]>([]);
 
   useEffect(() => {
-    loadContractHistoryIndex().then(setHistoryItems).catch(() => {});
+    loadContractHistoryIndex()
+      .then(setHistoryItems)
+      .catch(() => {});
   }, []);
   const [temporaryHistoryEntries, setTemporaryHistoryEntries] = useState<
     Record<string, TemporaryHistoryEntry>
@@ -222,9 +222,9 @@ export default function ContractAnalysis() {
           credentials: "include",
           signal: abortController.signal,
         });
-        const payload = (await response.json().catch(() => null)) as
-          | ApiResponse<EnterpriseGetData>
-          | null;
+        const payload = (await response
+          .json()
+          .catch(() => null)) as ApiResponse<EnterpriseGetData> | null;
 
         if (!response.ok || !payload?.success) {
           setEnterpriseContext(undefined);
@@ -297,7 +297,8 @@ export default function ContractAnalysis() {
   const activeTemporaryEntry = currentHistoryId
     ? temporaryHistoryEntries[currentHistoryId]
     : undefined;
-  const displayedIsProcessing = activeTemporaryEntry?.isProcessing ?? isProcessing;
+  const displayedIsProcessing =
+    activeTemporaryEntry?.isProcessing ?? isProcessing;
   const displayedProcessingPhase =
     activeTemporaryEntry?.processingPhase ?? processingPhase;
   const displayedAnalysisProgress =
@@ -312,8 +313,10 @@ export default function ContractAnalysis() {
     );
     const temporaryIds = new Set(temporaryItems.map((item) => item.id));
 
-    return [...temporaryItems, ...historyItems.filter((item) => !temporaryIds.has(item.id))]
-      .sort(compareByUploadTimeDesc);
+    return [
+      ...temporaryItems,
+      ...historyItems.filter((item) => !temporaryIds.has(item.id)),
+    ].sort(compareByUploadTimeDesc);
   }, [historyItems, temporaryHistoryEntries]);
 
   const updateTemporaryHistoryEntry = (
@@ -447,7 +450,10 @@ export default function ContractAnalysis() {
       // sur ce comportement -> au rechargement, DocumentViewer utilise le fallback formatContentToHtml
       // (qui fonctionne) plutôt que injectClausesIntoHtml (qui échoue sur le HTML brut Python).
       const savedItem = await saveContractHistorySnapshot(
-        createTemporaryHistorySnapshot({ ...completedEntry, htmlContent: null }),
+        createTemporaryHistorySnapshot({
+          ...completedEntry,
+          htmlContent: null,
+        }),
       );
       if (savedItem) {
         setHistoryItems(await loadContractHistoryIndex());
@@ -463,6 +469,14 @@ export default function ContractAnalysis() {
           marketAnalysis: completedEntry.marketAnalysis,
         });
         setShowAnalysisForm(false);
+
+        // Fetch destiné à retirer des crédits à l'utilisateur après une analyse de document ayant abouti
+        fetchProxy("/api/billing/remove-credits", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ removeAnalyzeCredit: 100 }),
+        }).catch(console.error);
       }
     } catch (error) {
       console.error("Erreur analyse:", error);
@@ -536,8 +550,8 @@ export default function ContractAnalysis() {
   ).some((entry) => !entry.contract.processed || entry.isProcessing);
   const shouldWarnBeforeLeaving = Boolean(
     hasTemporaryUnfinishedAnalysis ||
-      isProcessing ||
-      (contract && (!contract.processed || showAnalysisForm)),
+    isProcessing ||
+    (contract && (!contract.processed || showAnalysisForm)),
   );
 
   const confirmLeavingUnfinishedAnalysis = () => {
@@ -821,7 +835,11 @@ export default function ContractAnalysis() {
       documentPreparationRef.current = null;
     } else if (currentHistoryId) {
       const currentEntry = temporaryHistoryEntriesRef.current[currentHistoryId];
-      if (currentEntry && !currentEntry.isProcessing && !currentEntry.contract.processed) {
+      if (
+        currentEntry &&
+        !currentEntry.isProcessing &&
+        !currentEntry.contract.processed
+      ) {
         // Formulaire en cours -> confirmation requise avant de supprimer
         if (!confirmLeavingUnfinishedAnalysis()) return;
         documentPreparationRef.current = null;
@@ -984,7 +1002,6 @@ export default function ContractAnalysis() {
                 </div>
 
                 <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-
                   <UploadZone
                     onFileSelect={onFileUpload}
                     onTextSubmit={onTextSubmit}
@@ -1006,7 +1023,7 @@ export default function ContractAnalysis() {
               </div>
             )}
 
-        {/* Zone de chargement pour l'analyse approfondie */}
+            {/* Zone de chargement pour l'analyse approfondie */}
             {displayedIsProcessing &&
               (displayedProcessingPhase === "enhanced" ||
                 displayedProcessingPhase === "analysis" ||
@@ -1058,7 +1075,7 @@ export default function ContractAnalysis() {
               <div className="max-w-7xl mx-auto">
                 {/* Tableau de bord des risques supprimé (allègement UI) */}
 
-            {/* Zone principale - Document avec sidebar intégrée */}
+                {/* Zone principale - Document avec sidebar intégrée */}
                 <div id="clauses-section" className="mb-6">
                   <div className="bg-white rounded-lg shadow-lg">
                     {/* Message informatif si pas encore d'analyse */}
@@ -1084,7 +1101,9 @@ export default function ContractAnalysis() {
                       fileName={contract.fileName || "Document"}
                       contractSummary={currentAnalysisContext ?? undefined}
                       recommendationIndex={recommendationIndex}
-                      setRecommendationIndex={handleIncrementIndexRecommendation}
+                      setRecommendationIndex={
+                        handleIncrementIndexRecommendation
+                      }
                       activeClauseId={selectedClause}
                       ref={documentViewerRef}
                     />

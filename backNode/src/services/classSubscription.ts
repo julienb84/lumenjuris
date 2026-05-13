@@ -173,10 +173,10 @@ export class Subscription {
 
   async activateFreemium(userId: number): Promise<void> {
     try {
-      const existing = await prisma.subscription.findUnique({
+      const existingSubscription = await prisma.subscription.findUnique({
         where: { userId },
       });
-      if (existing) return;
+      if (existingSubscription) return;
 
       const plan = await prisma.plan.findFirst({
         where: { name: "Freemium", interval: "month" },

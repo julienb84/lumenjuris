@@ -4,6 +4,7 @@ import { authMiddleware } from "../middleware/authMiddleware";
 import { StripeLumenJuris } from "../../billing/stripe.service";
 import { prisma } from "../../prisma/singletonPrisma";
 import { Subscription } from "../services/classSubscription";
+import { Credit } from "../services/classCredit";
 
 const routerBilling: Router = express.Router();
 
@@ -149,4 +150,83 @@ routerBilling.get(
   },
 );
 
+routerBilling.put(
+  "/add-credits",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const userId = Number(req.idUser);
+    const { addSignatureCredit, addAnalyzeCredit, addGenerationCredit } =
+      req.body;
+
+    if (addSignatureCredit && typeof addSignatureCredit !== "number") {
+      return res.status(500).json({
+        success: false,
+        message: "L'ajout de crédit doit-être défini par un nombre.",
+      });
+    }
+    if (addAnalyzeCredit && typeof addAnalyzeCredit !== "number") {
+      return res.status(500).json({
+        success: false,
+        message: "L'ajout de crédit doit-être défini par un nombre.",
+      });
+    }
+    if (addGenerationCredit && typeof addGenerationCredit !== "number") {
+      res.status(500).json({
+        success: false,
+        message: "L'ajout de crédit doit-être défini par un nombre.",
+      });
+    }
+
+    const addedCredits = await new Credit().addCredit(
+      userId,
+      addSignatureCredit,
+      addAnalyzeCredit,
+      addGenerationCredit,
+    );
+
+    return res.status(addedCredits.success ? 200 : 500).json(addedCredits);
+  },
+);
+
+routerBilling.put(
+  "/remove-credits",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const userId = Number(req.idUser);
+    const {
+      removeSignatureCredit,
+      removeAnalyzeCredit,
+      removeGenerationCredit,
+    } = req.body;
+
+    if (removeSignatureCredit && typeof removeSignatureCredit !== "number") {
+      return res.status(500).json({
+        success: false,
+        message: "Le retrait de crédit doit-être défini par un nombre.",
+      });
+    }
+    if (removeAnalyzeCredit && typeof removeAnalyzeCredit !== "number") {
+      return res.status(500).json({
+        success: false,
+        message: "Le retrait de crédit doit-être défini par un nombre.",
+      });
+    }
+    if (removeGenerationCredit && typeof removeGenerationCredit !== "number") {
+      return res.status(500).json({
+        success: false,
+        message: "Le retrait de crédit doit-être défini par un nombre.",
+      });
+    }
+
+    const removedCredits = await new Credit().removeCredit(
+      userId,
+      removeSignatureCredit,
+      removeAnalyzeCredit,
+      removeGenerationCredit,
+    );
+    console.log("REMOVE CREDIT : ", removedCredits);
+
+    return res.status(removedCredits.success ? 200 : 500).json(removedCredits);
+  },
+);
 export default routerBilling;

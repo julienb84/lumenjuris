@@ -85,6 +85,27 @@ export function SubscriptionSettingsPanel() {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [credits, setCredits] = useState<CreditsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [addingCredits, setAddingCredits] = useState(false);
+
+  const handleAddAnalyseCredits = async () => {
+    setAddingCredits(true);
+    try {
+      const res = await fetchProxy("/api/billing/add-credits", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ addAnalyzeCredit: 100 }),
+      });
+      const data = await res.json();
+      if (data.success && credits) {
+        setCredits({ ...credits, creditAnalyse: credits.creditAnalyse + 100 });
+      }
+    } catch (err) {
+      console.error("Erreur ajout de crédits:", err);
+    } finally {
+      setAddingCredits(false);
+    }
+  };
 
   useEffect(() => {
     fetchProxy("/api/billing/subscription", {
@@ -196,9 +217,20 @@ export function SubscriptionSettingsPanel() {
 
       {credits !== null && (
         <div className="space-y-4 rounded-2xl border border-gray-200 bg-white px-5 py-4">
-          <p className="text-sm font-semibold text-gray-900">
-            Crédits restants ce mois
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-gray-900">
+              Crédits restants ce mois
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-xs hover:bg-gray-100"
+              disabled={addingCredits}
+              onClick={handleAddAnalyseCredits}
+            >
+              {addingCredits ? "Ajout…" : "+ 100 analyses"}
+            </Button>
+          </div>
           <div className="space-y-3">
             <CreditBar
               label="Analyses"
