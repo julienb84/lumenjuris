@@ -1,9 +1,19 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreditCard } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/Dialog";
 import { fetchProxy } from "../../utils/fetchProxy";
+import { CreditsPanel } from "../SubscriptionComponents/CreditsPanel";
+import { formatPrice } from "../../utils/format/formatPrice";
+import { formatDate } from "../../utils/format/formatDate";
 
 type SubscriptionStatus = "ACTIVE" | "CANCELLED" | "EXPIRED" | "PENDING";
 export type BillingInterval = "month" | "year";
@@ -33,20 +43,6 @@ const STATUS_LABEL: Record<SubscriptionStatus, string> = {
   PENDING: "En attente",
 };
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 2,
-  }).format(price / 100);
-
 function CreditBar({
   label,
   used,
@@ -67,7 +63,7 @@ function CreditBar({
         <span
           className={isLow ? "font-semibold text-red-600" : "text-gray-500"}
         >
-          {remaining} / {total}
+          {remaining}
         </span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
@@ -82,37 +78,19 @@ function CreditBar({
 
 export function SubscriptionSettingsPanel() {
   const navigate = useNavigate();
-  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(
+    null,
+  );
   const [credits, setCredits] = useState<CreditsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [addingCredits, setAddingCredits] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleAddAnalyseCredits = async () => {
-    setAddingCredits(true);
-    try {
-      const res = await fetchProxy("/api/billing/add-credits", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ addAnalyzeCredit: 100 }),
-      });
-      const data = await res.json();
-      if (data.success && credits) {
-        setCredits({ ...credits, creditAnalyse: credits.creditAnalyse + 100 });
-      }
-    } catch (err) {
-      console.error("Erreur ajout de crédits:", err);
-    } finally {
-      setAddingCredits(false);
-    }
-  };
-
-  useEffect(() => {
+  const fetchSubscription = useCallback(() => {
     fetchProxy("/api/billing/subscription", {
       method: "GET",
       credentials: "include",
     })
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => {
         if (data.success) {
           setSubscription(data.data.subscription ?? null);
@@ -122,6 +100,15 @@ export function SubscriptionSettingsPanel() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchSubscription();
+  }, [fetchSubscription]);
+
+  const handleCreditSuccess = () => {
+    setDialogOpen(false);
+    fetchSubscription();
+  };
 
   const isActive = subscription?.status === "ACTIVE";
   const isAnnual = subscription?.interval === "year";
@@ -221,16 +208,31 @@ export function SubscriptionSettingsPanel() {
             <p className="text-sm font-semibold text-gray-900">
               Crédits restants ce mois
             </p>
-            <Button
-              type="button"
-              variant="outline"
-              className="text-xs hover:bg-gray-100"
-              disabled={addingCredits}
-              onClick={handleAddAnalyseCredits}
-            >
-              {addingCredits ? "Ajout…" : "+ 100 analyses"}
-            </Button>
+
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="text-xs hover:bg-gray-100"
+                  >
+                    Ajouter des crédits
+                  </Button>
+                }
+              />
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Ajouter des crédits</DialogTitle>
+                </DialogHeader>
+                <CreditsPanel
+                  onSuccess={handleCreditSuccess}
+                  onClose={() => setDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
+
           <div className="space-y-3">
             <CreditBar
               label="Analyses"

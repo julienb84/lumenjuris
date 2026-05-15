@@ -228,5 +228,17 @@ routerBilling.put(
 
     return res.status(removedCredits.success ? 200 : 500).json(removedCredits);
   },
+
+  routerBilling.get(
+    "/credits",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      const userId = Number(req.idUser);
+
+      const result = await new Credit().getUserCredits(userId);
+
+      return res.status(result.success ? 200 : 500).json(result);
+    },
+  ),
 );
 export default routerBilling;

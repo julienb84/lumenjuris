@@ -29,16 +29,21 @@ const CARD_ELEMENT_OPTIONS = {
 
 type BillingInterval = "month" | "year";
 
+export type CreditsPayload = {
+  addAnalyzeCredit?: number;
+  addSignatureCredit?: number;
+  addGenerationCredit?: number;
+};
+
 type BillingFormProps = {
   planName: string;
   price: number;
-  interval: BillingInterval;
+  interval?: BillingInterval;
   onBack: () => void;
-  onSuccess: (
-    planName: string,
-    interval: BillingInterval,
-    price: number,
-  ) => void;
+  onSuccess: (planName: string, interval: BillingInterval, price: number) => void;
+  onError?: () => void;
+  mode?: "plan" | "credits";
+  creditsPayload?: CreditsPayload;
 };
 
 async function ensureStripeCustomer(): Promise<string | null> {
@@ -80,12 +85,26 @@ async function saveSubscription(
   );
 }
 
+async function addCreditsToAccount(payload: CreditsPayload): Promise<void> {
+  await fetch(`${PROXY_URL}/api/billing/add-credits`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
+  }).catch((err) =>
+    console.error("Erreur lors de l'ajout des crédits:", err),
+  );
+}
+
 export function BillingForm({
   planName,
   price,
   interval,
   onBack,
   onSuccess,
+  onError,
+  mode = "plan",
+  creditsPayload,
 }: BillingFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -93,12 +112,21 @@ export function BillingForm({
   const [error, setError] = useState<string | null>(null);
   const [cardholderName, setCardholderName] = useState("");
 
+  const isCreditsMode = mode === "credits";
   const annualPrice = price * 12;
+  const paymentAmount = !isCreditsMode && interval === "year" ? annualPrice : price;
 
-  const priceLabel =
-    interval === "year"
+  const priceLabel = isCreditsMode
+    ? `${formatPrice(price)} — paiement unique`
+    : interval === "year"
       ? `${formatPrice(annualPrice)} — paiement unique`
       : `${formatPrice(price)} / mois`;
+
+  const intervalLabel = isCreditsMode
+    ? "Achat ponctuel de crédits"
+    : interval === "year"
+      ? "Abonnement annuel"
+      : "Abonnement mensuel";
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -122,12 +150,7 @@ export function BillingForm({
     }
 
     // 2. Créer le PaymentIntent côté serveur
-    let clientSecret;
-    if (interval === "year") {
-      clientSecret = await createPaymentIntent(annualPrice);
-    } else {
-      clientSecret = await createPaymentIntent(price);
-    }
+    const clientSecret = await createPaymentIntent(paymentAmount);
     if (!clientSecret) {
       setError("Impossible d'initialiser le paiement. Réessayez.");
       setIsLoading(false);
@@ -148,22 +171,25 @@ export function BillingForm({
     if (confirmError) {
       setError(confirmError.message ?? "Le paiement a échoué. Réessayez.");
       setIsLoading(false);
+      onError?.();
       return;
     }
 
-    // 4. Sauvegarder l'abonnement en BDD après que le paiement ait été accepté)
+    // 4. Enregistrer selon le mode
     const paymentIntentId = clientSecret.split("_secret_")[0];
-    if (interval === "year") {
-      await saveSubscription(planName, interval, annualPrice, paymentIntentId);
+    if (isCreditsMode && creditsPayload) {
+      await addCreditsToAccount(creditsPayload);
     } else {
-      await saveSubscription(planName, interval, price, paymentIntentId);
+      await saveSubscription(
+        planName,
+        interval ?? "month",
+        paymentAmount,
+        paymentIntentId,
+      );
     }
+
     setIsLoading(false);
-    if (interval === "year") {
-      onSuccess(planName, interval, annualPrice);
-    } else {
-      onSuccess(planName, interval, price);
-    }
+    onSuccess(planName, interval ?? "month", paymentAmount);
   };
 
   return (
@@ -187,9 +213,7 @@ export function BillingForm({
         <div className="mt-2 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
           <div>
             <p className="text-sm font-medium text-gray-800">{planName}</p>
-            <p className="text-xs text-gray-500">
-              {interval === "year" ? "Abonnement annuel" : "Abonnement mensuel"}
-            </p>
+            <p className="text-xs text-gray-500">{intervalLabel}</p>
           </div>
           <p className="text-sm font-semibold text-gray-900">{priceLabel}</p>
         </div>
@@ -266,10 +290,8 @@ export function BillingForm({
               </svg>
               Traitement…
             </span>
-          ) : interval === "year" ? (
-            `Payer ${formatPrice(annualPrice)}`
           ) : (
-            `Payer ${formatPrice(price)}`
+            `Payer ${formatPrice(paymentAmount)}`
           )}
         </Button>
       </form>

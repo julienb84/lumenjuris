@@ -158,4 +158,33 @@ export class Credit {
       };
     }
   }
+
+  async getUserCredits(userId: number): Promise<ReturnData> {
+    try {
+      const user = await prisma.user.findUnique({ where: { idUser: userId } });
+      if (!user)
+        return { success: false, message: "Utilisateur introuvable !" };
+
+      const remainingCredits = await prisma.userCredit.findUnique({
+        where: { userId },
+        select: {
+          creditSignature: true,
+          creditAnalyse: true,
+          creditGenerationDoc: true,
+        },
+      });
+
+      return {
+        success: true,
+        message: "Crédits restant.",
+        data: remainingCredits,
+      };
+    } catch (error) {
+      console.error("GET CREDIT ERROR:", error);
+      return {
+        success: false,
+        message: "Erreur lors de la récupération de vos crédits.",
+      };
+    }
+  }
 }
