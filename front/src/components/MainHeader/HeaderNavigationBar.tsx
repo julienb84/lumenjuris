@@ -20,7 +20,7 @@ import {
 } from "../ui/DropDownMenu";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { MouseEvent } from "react";
 
 import { useUserStore } from "../../store/userStore";
@@ -29,9 +29,20 @@ type NavigationClickHandler = (
   event?: MouseEvent<HTMLElement>,
 ) => boolean | void;
 
+type NotificationBadge = "none" | "news" | "alert" | "urgent";
+
 interface HeaderNavBarProps {
   onNavClick?: NavigationClickHandler;
 }
+
+const NOTIFICATION_TYPES = {
+  missingEnterpriseData: {
+    title: "Pensez à compléter les informations manquantes dans : ",
+    path: "/mon-compte",
+    origin: "header-alert",
+    buttonLabel: "Mon compte > Mon entreprise",
+  },
+};
 
 const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
   const { pathname } = useLocation();
@@ -40,6 +51,13 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
   const { userData, isConnected, userAvatarUrl, logoutUser } = useUserStore();
 
   const [isMobile, setIsMobile] = useState(false);
+  const [notification, setNotification] = useState<NotificationBadge>("none");
+
+  const fetchEnterpriseData = useCallback(() => {
+    if (!userData?.enterprise) {
+      setNotification("urgent");
+    } else setNotification("none");
+  }, [userData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -49,6 +67,10 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    fetchEnterpriseData();
+  }, [fetchEnterpriseData]);
 
   const handleUserLogout = async () => {
     if (onNavClick?.() === false) return;
@@ -252,33 +274,41 @@ const HeaderNavigationBar = ({ onNavClick }: HeaderNavBarProps) => {
 
       {isConnected ? (
         <section className="flex items-center gap-3">
-          {!userData?.enterprise ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                    <Bell className="h-5 w-5 text-gray-400" />
-                    <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
-                    <span className="absolute top-1.5 right-1.5 h-2 w-2 animate-ping rounded-full bg-destructive opacity-75"></span>
-                  </button>
-                }
-              />
-              <DropdownMenuContent
-                sideOffset={6}
-                alignOffset={-60}
-                className="min-w-28 bg-lumenjuris-sidebar ring-lumenjuris/60 font-medium text-sm px-4 text-gray-400"
-              >
-                <p>Pensez à compléter les informations manquantes dans : </p>
-                <Link to="/mon-compte" state={{ origin: "header-alert" }}>
-                  <button className="font-semibold text-gray-100">{`Mon compte > Mon entreprise`}</button>
-                </Link>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <Bell className="h-5 w-5 text-gray-400" />
-            </button>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Bell className="h-5 w-5 text-gray-400" />
+                  {notification === "none" ? (
+                    <></>
+                  ) : (
+                    <>
+                      <span
+                        className={`absolute top-1.5 right-1.5 h-2 w-2 rounded-full ${notification === "urgent" ? "bg-destructive" : notification === "alert" ? "bg-destructive" : notification === "news" ? "bg-green-600" : ""} `}
+                      />
+                      {notification === "urgent" && (
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 animate-ping rounded-full bg-destructive opacity-75"></span>
+                      )}
+                    </>
+                  )}
+                </button>
+              }
+            />
+            <DropdownMenuContent
+              sideOffset={6}
+              alignOffset={-60}
+              className="min-w-28 bg-lumenjuris-sidebar ring-lumenjuris/60 font-medium text-sm px-4 text-gray-400"
+            >
+              {!userData?.enterprise && (
+                <>
+                  <p>Pensez à compléter les informations manquantes dans : </p>
+                  <Link to="/mon-compte" state={{ origin: "header-alert" }}>
+                    <button className="font-semibold text-gray-100">{`Mon compte > Mon entreprise`}</button>
+                  </Link>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <div className="flex items-center gap-2 pl-3 border-l border-gray-200">
             {userAvatarUrl ? (
